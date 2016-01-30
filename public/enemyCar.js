@@ -18,6 +18,9 @@ var Enemy_Car = function(game, pos, type) {
     Phaser.Sprite.call( this, game, targetX, targetY, 'monster_car' );
 
     this.anchor.setTo( 0.5, 0.5 );
+    this.animations.add('walk', [ 0, 1 ], 5, true);
+    this.play('walk');
+    this.revive();
 
     this.game.physics.enable(this, Phaser.Physics.ARCADE);
 

@@ -106,11 +106,6 @@
         function createAliens(x, y, type) {
             var alien = new Enemy_Car(game, x, y, type);
             group_enemy.add(alien);
-            alien.anchor.setTo(0.5, 0.5);
-            alien.animations.add('walk', [ 0, 1 ], 5, true);
-            alien.play('walk');
-            //alien.body.moves = false;
-            alien.revive();
         }
 
         function getPlayerWithId( id ) {
