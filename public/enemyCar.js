@@ -1,7 +1,7 @@
-var Enemy_Car = function(game, type, speed) {
+var Enemy_Car = function(game, targetId, type, speed) {
     this.entityType = "Enemy_Car";
-    this.id = game.nextEnemyId++;
-    
+    this.id = targetId;
+
     var targetX = 0;
     var targetY = 0;
     switch( type ) {

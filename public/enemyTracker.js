@@ -1,6 +1,6 @@
-var Enemy_Tracker = function(game, x, y, targetPlayer) {
+var Enemy_Tracker = function(game, targetId, x, y, targetPlayer) {
     this.entityType = "Enemy_Tracker";
-    this.id = game.nextEnemyId++;
+    this.id = targetId;
 
     Phaser.Sprite.call( this, game, x, y, 'monster_1' );
 
