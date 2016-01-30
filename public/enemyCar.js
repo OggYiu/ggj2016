@@ -1,26 +1,27 @@
-var Enemy_Car = function(game, pos, type) {
+var Enemy_Car = function(game, type, speed) {
     this.entityType = "Enemy_Car";
+    this.id = game.nextEnemyId++;
+    
     var targetX = 0;
     var targetY = 0;
-    var speed = 100;
     switch( type ) {
         case 0: {
-            targetX = -100;
-            targetY = pos;
+            targetX = 0;
+            targetY = game.rnd.integerInRange(0, game.myScreenHeight);
         }
         break;
         case 1: {
-            targetX = pos;
-            targetY = -100;
+            targetX = game.rnd.integerInRange(0, game.myScreenWidth);
+            targetY = 0;
         }
         break;
         case 2: {
             targetX = game.myScreenWidth;
-            targetY = pos;
+            targetY = game.rnd.integerInRange(0, game.myScreenHeight);
         }
         break;
         case 3: {
-            targetX = pos;
+            targetX = game.rnd.integerInRange(0, game.myScreenWidth);
             targetY = game.myScreenHeight;
         }
         break;
@@ -35,13 +36,16 @@ var Enemy_Car = function(game, pos, type) {
     this.game.physics.enable(this, Phaser.Physics.ARCADE);
 
     // Define constants that affect motion
-    this.SPEED = 100; // missile speed pixels/second
+    this.SPEED = speed; // missile speed pixels/second
     this.TURN_RATE = 5; // turn rate in degrees/frame
     // this.WOBBLE_LIMIT = 15; // degrees
     // this.WOBBLE_SPEED = 250; // milliseconds
     // this.SMOKE_LIFETIME = 3000; // milliseconds
     // this.AVOID_DISTANCE = 30; // pixels
 
+    if ( this.game.account_id != 1 ) {
+        return;
+    }
 
     switch( type ) {
         case 0: {

@@ -1,5 +1,7 @@
 var Enemy_Tracker = function(game, x, y, targetPlayer) {
     this.entityType = "Enemy_Tracker";
+    this.id = game.nextEnemyId++;
+
     Phaser.Sprite.call( this, game, x, y, 'monster_1' );
 
     this.anchor.setTo( 0.5, 0.5 );
@@ -10,6 +12,13 @@ var Enemy_Tracker = function(game, x, y, targetPlayer) {
     this.SPEED = 100; // missile speed pixels/second
     this.TURN_RATE = 5; // turn rate in degrees/frame
     this.targetPlayer = targetPlayer;
+
+    this.animations.add('walk', [ 0, 1 ], 5, true);
+    this.play('walk');
+
+
+    // game.add.text(32, 120, 'Integer in Range (100-200): ' + game.rnd.integerInRange(100, 200), style);
+
     // this.WOBBLE_LIMIT = 15; // degrees
     // this.WOBBLE_SPEED = 250; // milliseconds
     // this.SMOKE_LIFETIME = 3000; // milliseconds
@@ -20,6 +29,10 @@ var Enemy_Tracker = function(game, x, y, targetPlayer) {
 Enemy_Tracker.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy_Tracker.prototype.constructor = Enemy_Tracker;
 Enemy_Tracker.prototype.update = function() {
+    if ( this.game.account_id != 1 ) {
+        return;
+    }
+
     var targetAngle = this.game.math.angleBetween(
         this.x, this.y,
         this.targetPlayer.x, this.targetPlayer.y
@@ -36,19 +49,19 @@ Enemy_Tracker.prototype.update = function() {
 
         if (delta > 0) {
             // Turn clockwise
-            this.angle += this.TURN_RATE;
+            // this.angle += this.TURN_RATE;
         } else {
             // Turn counter-clockwise
-            this.angle -= this.TURN_RATE;
+            // this.angle -= this.TURN_RATE;
         }
 
         // Just set angle to target angle if they are close
         if (Math.abs(delta) < this.game.math.degToRad(this.TURN_RATE)) {
-            this.rotation = targetAngle;
+            // this.rotation = targetAngle;
         }
     }
 
     // Calculate velocity vector based on this.rotation and this.SPEED
-    this.body.velocity.x = Math.cos(this.rotation) * this.SPEED;
-    this.body.velocity.y = Math.sin(this.rotation) * this.SPEED;
+    this.body.velocity.x = Math.cos(targetAngle) * this.SPEED;
+    this.body.velocity.y = Math.sin(targetAngle) * this.SPEED;
 }
