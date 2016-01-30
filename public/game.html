@@ -186,6 +186,17 @@
             return targetPlayer;
         }
 
+        function getMonsterById( id ) {
+            var targetMonster;
+            group_enemy.forEach(function(enemy) {
+                if ( enemy.id == id ) {
+                    targetMonster = enemy;
+                    return;
+                }
+            });
+            return targetMonster;
+        }
+
         function playerFireBullet( game, player, targetX, targetY ) {
             var bullet = group_player_bullet.getFirstExists(false);
             if (bullet) {
