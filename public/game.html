@@ -379,7 +379,7 @@
                         explosionAnimation.play('kaboom', 30, false, true);
                         // enemy.play('kaboom');
                         enemy.kill();
-                    }   
+                    }
                 }
             });
         }
@@ -410,24 +410,40 @@
             if ( socket ) {
                 socket.emit('new_remote_monster', json);
             }
+
+            setInterval(function(){ updateMonsterPosition(monster); }, 50);
           }
         }
 
         function updatePlayerPosition(player)
         {
+          if (player)
+          {
             var json = {"id":game.account_id, "posX":player.x, "posY":player.y, "status":'ALIVE'};
             if ( socket ) {
                 socket.emit('update_player', json);
             }
+          }
+        }
+
+        function updateMonsterPosition(monster)
+        {
+          if (monster)
+          {
+            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "status":'ALIVE'};
+            if ( socket ) {
+                socket.emit('update_monster', json);
+            }
+          }
         }
 
         function connectServer()
         {
           function UpdateRemoteMonster(monster)
           {
-            var remotePlayer = getPlayerById(player.id);
-            remotePlayer.x = player.posX;
-            remotePlayer.y = player.posY;
+            var remoteMonster = getMonsterById(monster.id);
+            remoteMonster.x = monster.posX;
+            remoteMonster.y = monster.posY;
           }
 
           function UpdateRemotePlayer(player)
@@ -444,7 +460,7 @@
 
             if (game.account_id == 1)
             {
-              createEnemyTracker(game, getNextEnemyId(), 10, 10, game.rnd.integerInRange(1, 3));
+              createEnemyTracker(game, getNextEnemyId(), 10, 10, game.rnd.integerInRange(1, group_player.children.length));
               createEnemyCar(game, getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
               createEnemyCar(game, getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
               createEnemyCar(game, getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
@@ -474,6 +490,10 @@
 
           socket.on('update_player', function(player) {
             UpdateRemotePlayer(player);
+          });
+
+          socket.on('update_monster', function(monster) {
+            UpdateRemoteMonster(monster);
           });
 
           socket.on('new_remote_monster', function(monster) {
