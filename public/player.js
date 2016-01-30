@@ -1,4 +1,5 @@
 var Player = function(game, x, y, id) {
+    this.entityType = "Player";
     this.id = id;
 
     var imageName = "";
@@ -18,13 +19,13 @@ var Player = function(game, x, y, id) {
     }
     Phaser.Sprite.call( this, game, x, y, imageName );
 
-    // this.anchor.setTo( 0.5, 0.5 );
-    // game.physics.enable(this, Phaser.Physics.ARCADE);
-    // this.SPEED = 100;
+    this.anchor.setTo( 0.5, 0.5 );
+    game.physics.enable(this, Phaser.Physics.ARCADE);
+    //this.SPEED = 100;
     // this.TURN_RATE = 5;
 
-    // this.animations.add('walk', [ 0, 1 ], 5, true);
-    // this.play('walk');
+    this.animations.add('walk', [ 0, 1 ], 5, true);
+    this.play('walk');
 
     // game.physics.enable(this, Phaser.Physics.ARCADE);
 };

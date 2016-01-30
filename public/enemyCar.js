@@ -1,17 +1,27 @@
 var Enemy_Car = function(game, pos, type) {
+    this.entityType = "Enemy_Car";
     var targetX = 0;
     var targetY = 0;
+    var speed = 100;
     switch( type ) {
         case 0: {
+            targetX = -100;
+            targetY = pos;
         }
         break;
         case 1: {
+            targetX = pos;
+            targetY = -100;
         }
         break;
         case 2: {
+            targetX = game.myScreenWidth;
+            targetY = pos;
         }
         break;
         case 3: {
+            targetX = pos;
+            targetY = game.myScreenHeight;
         }
         break;
     }
@@ -32,6 +42,25 @@ var Enemy_Car = function(game, pos, type) {
     // this.SMOKE_LIFETIME = 3000; // milliseconds
     // this.AVOID_DISTANCE = 30; // pixels
 
+
+    switch( type ) {
+        case 0: {
+            this.body.velocity.x = speed;
+        }
+        break;
+        case 1: {
+            this.body.velocity.y = speed;
+        }
+        break;
+        case 2: {
+            this.body.velocity.x = -speed;
+        }
+        break;
+        case 3: {
+            this.body.velocity.y = -speed;
+        }
+        break;
+    }
 
     // if ( x <= 0 ) {
     //     this.body.velocity.x = 100;
