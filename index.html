@@ -10,19 +10,118 @@
     <script type="text/javascript">
 
     window.onload = function() {
-        var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
-
         function preload() {
-            game.load.image('player1', 'assets/player_1.png');
+            game.load.image('player_1', 'assets/player_1.png');
+            game.load.image('bullet_1', 'assets/bullet_1.png');
+            game.load.spritesheet('monster_1', 'assets/monster1.png', 48, 64);
         }
 
         var player1;
+        var group_player;
+        var group_enemy;
+        var group_player_bullet;
+        var group_enemy_bullet;
         var keyLeft;
         var keyRight;
         var keyUpward;
         var keyDownward;
+        var bulletTime = 0;
+
+        var Enemy = function(game, x, y, type) {
+            Phaser.Sprite.call( this, game, x, y, 'monster_1' );
+
+            this.anchor.setTo( 0.5, 0.5 );
+
+            this.game.physics.enable(this, Phaser.Physics.ARCADE);
+
+            // Define constants that affect motion
+            this.SPEED = 250; // missile speed pixels/second
+            this.TURN_RATE = 5; // turn rate in degrees/frame
+            // this.WOBBLE_LIMIT = 15; // degrees
+            // this.WOBBLE_SPEED = 250; // milliseconds
+            // this.SMOKE_LIFETIME = 3000; // milliseconds
+            // this.AVOID_DISTANCE = 30; // pixels
+        };
+
+        // Missiles are a type of Phaser.Sprite
+        Enemy.prototype = Object.create(Phaser.Sprite.prototype);
+        Enemy.prototype.constructor = Enemy;
+        Enemy.prototype.update = function() {
+            // Calculate the angle from the missile to the mouse cursor game.input.x
+            // and game.input.y are the mouse position; substitute with whatever
+            // target coordinates you need.
+            var targetAngle = this.game.math.angleBetween(
+                this.x, this.y,
+                player1.x, player1.y
+            );
+
+            // Add our "wobble" factor to the targetAngle to make the missile wobble
+            // Remember that this.wobble is tweening (above)
+            //targetAngle += this.game.math.degToRad(this.wobble);
+
+
+            // Make each missile steer away from other missiles.
+            // Each missile knows the group that it belongs to (missileGroup).
+            // It can calculate its distance from all other missiles in the group and
+            // steer away from any that are too close. This avoidance behavior prevents
+            // all of the missiles from bunching up too tightly and following the
+            // same track.
+
+            // Gradually (this.TURN_RATE) aim the missile towards the target angle
+            if (this.rotation !== targetAngle) {
+                // Calculate difference between the current angle and targetAngle
+                var delta = targetAngle - this.rotation;
+
+                // Keep it in range from -180 to 180 to make the most efficient turns.
+                if (delta > Math.PI) delta -= Math.PI * 2;
+                if (delta < -Math.PI) delta += Math.PI * 2;
+
+                if (delta > 0) {
+                    // Turn clockwise
+                    this.angle += this.TURN_RATE;
+                } else {
+                    // Turn counter-clockwise
+                    this.angle -= this.TURN_RATE;
+                }
+
+                // Just set angle to target angle if they are close
+                if (Math.abs(delta) < this.game.math.degToRad(this.TURN_RATE)) {
+                    this.rotation = targetAngle;
+                }
+            }
+
+            // Calculate velocity vector based on this.rotation and this.SPEED
+            this.body.velocity.x = Math.cos(this.rotation) * this.SPEED;
+            this.body.velocity.y = Math.sin(this.rotation) * this.SPEED;
+
+            // console.log( "velocity : " + this.body.velocity.x + ", " + this.body.velocity.y );
+        };
+
+        var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
         function create() {
+            group_enemy = game.add.group();
+            group_enemy.enableBody = true;
+            group_enemy.physicsBodyType = Phaser.Physics.ARCADE;
+
+            group_player_bullet = game.add.group();
+            group_player_bullet.enableBody = true;
+            group_player_bullet.physicsBodyType = Phaser.Physics.ARCADE;
+            group_player_bullet.createMultiple(30, 'bullet_1');
+            group_player_bullet.setAll('anchor.x', 0.5);
+            group_player_bullet.setAll('anchor.y', 1);
+            group_player_bullet.setAll('outOfBoundsKill', true);
+            group_player_bullet.setAll('checkWorldBounds', true);
+
+            group_enemy_bullet = game.add.group();
+            group_enemy_bullet.enableBody = true;
+            group_enemy_bullet.physicsBodyType = Phaser.Physics.ARCADE;
+            group_enemy_bullet.createMultiple(30, 'bullet_1');
+            group_enemy_bullet.setAll('anchor.x', 0.5);
+            group_enemy_bullet.setAll('anchor.y', 1);
+            group_enemy_bullet.setAll('outOfBoundsKill', true);
+            group_enemy_bullet.setAll('checkWorldBounds', true);
+
             // //  Our bullet group
             // bullets = game.add.group();
             // bullets.enableBody = true;
@@ -46,34 +145,65 @@
             game.physics.startSystem(Phaser.Physics.ARCADE);
             
             //  The hero!
-            player1 = game.add.sprite(400, 500, 'player1');
+            player1 = game.add.sprite(400, 500, 'player_1');
             player1.anchor.setTo(0.5, 0.5);
             game.physics.enable(player1, Phaser.Physics.ARCADE);
 
-            this.keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
-            this.keyRight = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT); 
-            this.keyUpward = game.input.keyboard.addKey(Phaser.Keyboard.UP);
-            this.keyDownward = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);    
+            keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+            keyRight = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT); 
+            keyUpward = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+            keyDownward = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+
+            createAliens();
+            group_enemy.x = 100;
+            group_enemy.y = 50;
+        }
+
+        function createAliens(x, y, type) {
+            var alien = new Enemy(game, x, y, type);
+            group_enemy.add(alien);
+            alien.anchor.setTo(0.5, 0.5);
+            alien.animations.add('walk', [ 0, 1 ], 5, true);
+            alien.play('walk');
+            //alien.body.moves = false;
+            alien.revive();
+        }
+
+        function fireBullet() {
+            // console.log( "fireBullet" );
+            //  To avoid them being allowed to fire too fast we set a time limit
+            if (game.time.now > bulletTime) {
+                //  Grab the first bullet we can from the pool
+                bullet = group_player_bullet.getFirstExists(false);
+                if (bullet) {
+                    //  And fire it
+                    bullet.reset(player1.x, player1.y + 8);
+                    bullet.body.velocity.y = -400;
+                    bulletTime = game.time.now + 1000;
+                }
+            }
         }
 
         function update() {
+            fireBullet();
+
             //  Reset the player, then check for movement keys
             player1.body.velocity.setTo(0, 0);
 
-            if (this.keyLeft.isDown)
+            if (keyLeft.isDown)
             {
                 player1.body.velocity.x = -200;
             }
-            else if (this.keyRight.isDown)
+            else if (keyRight.isDown)
             {
                 player1.body.velocity.x = 200;
             }
 
-            if (this.keyUpward.isDown)
+            if (keyUpward.isDown)
             {
                 player1.body.velocity.y = -200;
             }
-            else if (this.keyDownward.isDown)
+            else if (keyDownward.isDown)
             {
                 player1.body.velocity.y = 200;
             }
