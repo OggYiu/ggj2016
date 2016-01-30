@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <title>hello phaser!</title>
         <script src="phaser.min.js"></script>
+        <script src="enemyMissile.js"></script>
         <script src="enemyCar.js"></script>
         <script src="player.js"></script>
     </head>
@@ -31,6 +32,8 @@
     window.onload = function() {
         function preload() {
             game.load.spritesheet('player_1', 'assets/player_1.png', 42, 42);
+            game.load.spritesheet('player_2', 'assets/player_2.png', 42, 42);
+            game.load.spritesheet('player_3', 'assets/player_3.png', 42, 42);
             game.load.image('bullet_1', 'assets/bullet_1.png');
             game.load.spritesheet('monster_1', 'assets/monster1.png', 48, 64);
             game.load.spritesheet('monster_car', 'assets/monster_car.png', 40, 40);
@@ -46,28 +49,6 @@
         var keyUpward;
         var keyDownward;
         var bulletTime = 0;
-
-        var Enemy = function(game, x, y, type) {
-            Phaser.Sprite.call( this, game, x, y, 'monster_1' );
-
-            this.anchor.setTo( 0.5, 0.5 );
-
-            this.game.physics.enable(this, Phaser.Physics.ARCADE);
-
-            // Define constants that affect motion
-            this.SPEED = 100; // missile speed pixels/second
-            this.TURN_RATE = 5; // turn rate in degrees/frame
-            // this.WOBBLE_LIMIT = 15; // degrees
-            // this.WOBBLE_SPEED = 250; // milliseconds
-            // this.SMOKE_LIFETIME = 3000; // milliseconds
-            // this.AVOID_DISTANCE = 30; // pixels
-        };
-
-        // Missiles are a type of Phaser.Sprite
-        Enemy.prototype = Object.create(Phaser.Sprite.prototype);
-        Enemy.prototype.constructor = Enemy;
-        Enemy.prototype.update = function() {
-        };
 
         var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
@@ -186,7 +167,7 @@
                 player.body.velocity.setTo(0, 0);
 
                 if (keyLeft.isDown)
-                {
+                {   
                     player.body.velocity.x = -200;
                 }
                 else if (keyRight.isDown)
