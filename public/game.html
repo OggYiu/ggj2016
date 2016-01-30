@@ -8,6 +8,7 @@
         <script src="enemyCar.js"></script>
         <script src="player.js"></script>
         <script src="Glow.js"></script>
+        <script src="Fireball.js"></script>
         <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
@@ -16,12 +17,17 @@
 
     window.onload = function() {
         function preload() {
+            game.time.advancedTiming = true;
+
             game.load.spritesheet('player_1', 'assets/player_1.png', 42, 42);
             game.load.spritesheet('player_2', 'assets/player_2.png', 42, 42);
             game.load.spritesheet('player_3', 'assets/player_3.png', 42, 42);
             game.load.image('bullet_1', 'assets/bullet_1.png');
             game.load.spritesheet('monster_1', 'assets/monster1.png', 48, 64);
             game.load.spritesheet('monster_car', 'assets/monster_car.png', 40, 40);
+            game.load.tilemap('map1CVS', 'assets/map1.csv', null, Phaser.Tilemap.CSV);
+            game.load.image('map1Tiles', 'assets/mapTile1.png');
+            game.load.image("boid", "assets/boid.png");
         }
         var account_id = 1;
         var group_player;
@@ -30,16 +36,39 @@
         var group_enemy_bullet;
         var keyLeft;
         var keyRight;
+        var keySpace;
         var keyUpward;
         var keyDownward;
+        var fireButton;
         var bulletTime = 0;
         var magicTriangle;
         var graphics;
+        var map1;
+        var magicCircleShape;
+        var FIREBALL_WIDTH = 800;
+        var FIREBALL_HEIGHT = 600;
 
-        var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+        var game = new Phaser.Game(800, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
         game.myScreenWidth = 800;
-        game.myScreenHeight = 600;
+        game.myScreenHeight = 608;
+
         function create() {
+            map1 = game.add.tilemap('map1CVS', 32, 32);
+            map1.addTilesetImage('map1Tiles');
+            layer = map1.createLayer(0);
+            layer.resizeWorld();
+
+            magicTriangle = new Phaser.Polygon();
+            graphics = game.add.graphics(0, 0);
+            
+            // fireballFilter = new Phaser.Filter(game, null, fireballFragmentSrc);
+            // fireballFilter.setResolution(FIREBALL_WIDTH, FIREBALL_HEIGHT);
+            // fireballSprite = game.add.sprite();
+            // fireballSprite.width = FIREBALL_WIDTH;
+            // fireballSprite.height = FIREBALL_HEIGHT;
+            // fireballSprite.filters = [ fireballFilter ];
+            // fireballSprite.anchor.setTo( 0.5, 0.5 );
+
             group_player = game.add.group();
             group_player.enableBody = true;
             group_player.physicsBodyType = Phaser.Physics.ARCADE;
@@ -66,34 +95,14 @@
             group_enemy_bullet.setAll('outOfBoundsKill', true);
             group_enemy_bullet.setAll('checkWorldBounds', true);
 
-            // //  Our bullet group
-            // bullets = game.add.group();
-            // bullets.enableBody = true;
-            // bullets.physicsBodyType = Phaser.Physics.ARCADE;
-            // bullets.createMultiple(30, 'bullet');
-            // bullets.setAll('anchor.x', 0.5);
-            // bullets.setAll('anchor.y', 1);
-            // bullets.setAll('outOfBoundsKill', true);
-            // bullets.setAll('checkWorldBounds', true);
-
-            // // The enemy's bullets
-            // enemyBullets = game.add.group();
-            // enemyBullets.enableBody = true;
-            // enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-            // enemyBullets.createMultiple(30, 'enemyBullet');
-            // enemyBullets.setAll('anchor.x', 0.5);
-            // enemyBullets.setAll('anchor.y', 1);
-            // enemyBullets.setAll('outOfBoundsKill', true);
-            // enemyBullets.setAll('checkWorldBounds', true);
-
             game.physics.startSystem(Phaser.Physics.ARCADE);
-
-            //  The hero!
 
             keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
             keyRight = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
             keyUpward = game.input.keyboard.addKey(Phaser.Keyboard.UP);
             keyDownward = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+            keySpace = game.input.keyboard.addKey(Phaser.Keyboard.A);
+            fireButton = game.input.mousePointer;
 
             createPlayer( game, 400, 500, 1 );
             createPlayer( game, 500, 400, 2 );
@@ -105,14 +114,11 @@
             createEnemyCar(game, 100, 2);
             createEnemyCar(game, 100, 3);
 
+            // magicCircleShape = new Phaser.Circle(100, 100, 128);
             // group_enemy.x = 100;
             // group_enemy.y = 50;
 
             //  You can also create an empty Polygon:
-            magicTriangle = new Phaser.Polygon();
-            graphics = game.add.graphics(0, 0);
-
-            //connectServer();
         }
 
         function onEnemyPlayerOverlay( enemy, player ) {
@@ -129,7 +135,7 @@
         }
 
         function createEnemyTracker( game, x, y ) {
-            var alien = new Enemy_Tracker(game, x, y, getPlayerWithId(1));
+            var alien = new Enemy_Tracker(game, x, y, getPlayerById(1));
             group_enemy.add(alien);
         }
 
@@ -138,7 +144,7 @@
             group_enemy.add(alien);
         }
 
-        function getPlayerWithId( id ) {
+        function getPlayerById( id ) {
             var targetPlayer;
             group_player.forEach(function(player) {
                 if ( player.id == id ) {
@@ -147,6 +153,22 @@
                 }
             });
             return targetPlayer;
+        }
+
+        function playerFireBullet( game, player, targetX, targetY ) {
+            var bullet = group_player_bullet.getFirstExists(false);
+            if (bullet) {
+                //  And fire it
+                bullet.reset(player.x, player.y);
+                bullet.body.velocity.y = -400;
+                bulletTime = game.time.now + 1000;
+
+                var targetAngle = game.math.angleBetween(
+                    player.x, player.y,
+                    targetX, targetY
+                );
+                bullet.rotation = targetAngle;
+            }
         }
 
         function fireBullet() {
@@ -169,7 +191,7 @@
         function update() {
             fireBullet();
 
-            var player = getPlayerWithId(account_id);
+            var player = getPlayerById(account_id);
 
             if ( player ) {
                 //  Reset the player, then check for movement keys
@@ -196,18 +218,29 @@
                     player.body.velocity.y = 200;
                     updatePlayerPosition(player);
                 }
+                if ( keySpace.isDown ) {
+                    activeMagicCircle();
+                }
+                if ( fireButton.isDown ) {
+                    playerFireBullet( game, getPlayerById(account_id), game.input.x, game.input.y);
+                }
             }
 
+            // if ( fireballFilter ) {
+            //     fireballFilter.update();
+            // }
             game.physics.arcade.overlap(group_enemy, group_player, onEnemyPlayerOverlay, null, this);
+
+            // console.log( "group_enemy : " + group_enemy.children.length );
         }
 
         function updateMagicCircle() {
             if ( group_player.children.length < 3 ) {
                 return;
             }
-            var player1 = getPlayerWithId(1);
-            var player2 = getPlayerWithId(2);
-            var player3 = getPlayerWithId(3); 
+            var player1 = getPlayerById(1);
+            var player2 = getPlayerById(2);
+            var player3 = getPlayerById(3); 
 
             //  And then populate it via setTo, using any combination of values as above
             magicTriangle.setTo([ new Phaser.Point(player1.x, player1.y), new Phaser.Point(player2.x, player2.y), new Phaser.Point(player3.x, player3.y)]);
@@ -217,7 +250,72 @@
             graphics.endFill();
         }
 
+        function updateCircleFromPoints( p1, p2, p3 )
+        {
+            var TOL = 0.0000001;
+            var offset = Math.pow(p2.x,2) + Math.pow(p2.y,2);
+            var bc =   ( Math.pow(p1.x,2) + Math.pow(p1.y,2) - offset )/2.0;
+            var cd =   (offset - Math.pow(p3.x, 2) - Math.pow(p3.y, 2))/2.0;
+            var det =  (p1.x - p2.x) * (p2.y - p3.y) - (p2.x - p3.x)* (p1.y - p2.y); 
+
+            if (Math.abs(det) < TOL) {
+                return null;
+            }
+
+            var idet = 1/det;
+
+            var centerx =  (bc * (p2.y - p3.y) - cd * (p1.y - p2.y)) * idet;
+            var centery =  (cd * (p1.x - p2.x) - bc * (p2.x - p3.x)) * idet;
+            var radius = Math.sqrt( Math.pow(p2.x - centerx,2) + Math.pow(p2.y-centery,2));
+
+            magicCircleShape.x = centerx;
+            magicCircleShape.y = centery;
+            magicCircleShape.radius = radius;
+            // return new Phaser.Circle(new Phaser.Point(centerx,centery),radius);
+        }
+
+        function sign ( p1, p2, p3 )
+        {
+            return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+        }
+
+        function PointInTriangle ( pt, v1, v2, v3 )
+        {
+            var b1 = sign(pt, v1, v2) < 0.0;
+            var b2 = sign(pt, v2, v3) < 0.0;
+            var b3 = sign(pt, v3, v1) < 0.0;
+
+            return ((b1 == b2) && (b2 == b3));
+        }
+
+        function activeMagicCircle() {
+
+            var player1 = getPlayerById(1);
+            var player2 = getPlayerById(2);
+            var player3 = getPlayerById(3); 
+
+            //  And then populate it via setTo, using any combination of values as above
+            magicTriangle.setTo([ new Phaser.Point(player1.x, player1.y), new Phaser.Point(player2.x, player2.y), new Phaser.Point(player3.x, player3.y)]);
+
+            group_enemy.forEach(function(enemy) {
+                if ( PointInTriangle(   new Phaser.Point( enemy.x, enemy.y), 
+                                        new Phaser.Point(player1.x, player1.y), 
+                                        new Phaser.Point(player2.x, player2.y), 
+                                        new Phaser.Point(player3.x, player3.y) ) ) {
+                    enemy.kill();
+                }
+            });
+        }
+
         function render() {
+            var player1 = getPlayerById(1);
+            var player2 = getPlayerById(2);
+            var player3 = getPlayerById(3); 
+            // updateCircleFromPoints( new Phaser.Point(player1.x, player1.y), 
+            //                         new Phaser.Point(player2.x, player2.y), 
+            //                         new Phaser.Point(player3.x, player3.y) );
+            // game.debug.geom(magicCircleShape,'#cfffff');
+            game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
             updateMagicCircle();
             // for (var i = 0; i < aliens.length; i++)
             // {
@@ -239,7 +337,7 @@
         {
           function UpdateRemotePlayer(player)
           {
-            var remotePlayer = getPlayerWithId(player.id);
+            var remotePlayer = getPlayerById(player.id);
             remotePlayer.x = player.posX;
             remotePlayer.y = player.posY;
           }
