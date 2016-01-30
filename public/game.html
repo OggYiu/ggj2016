@@ -7,6 +7,23 @@
     </head>
     <body>
 
+      <script src="/socket.io/socket.io.js"></script>
+      <script>
+        var socket = io.connect('http://SERVERIP');
+        // Add a connect listener
+        socket.on('connect', function() {
+          console.log('Client has connected to the server!');
+        });
+        // Add a connect listener
+        socket.on('message', function(data) {
+          console.log('Received a message from the server!', data);
+        });
+        // Add a disconnect listener
+        socket.on('disconnect', function() {
+          console.log('The client has disconnected!');
+        });
+      </script>
+
     <script type="text/javascript">
 
     window.onload = function() {
@@ -143,14 +160,14 @@
             // enemyBullets.setAll('checkWorldBounds', true);
 
             game.physics.startSystem(Phaser.Physics.ARCADE);
-            
+
             //  The hero!
             player1 = game.add.sprite(400, 500, 'player_1');
             player1.anchor.setTo(0.5, 0.5);
             game.physics.enable(player1, Phaser.Physics.ARCADE);
 
             keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
-            keyRight = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT); 
+            keyRight = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
             keyUpward = game.input.keyboard.addKey(Phaser.Keyboard.UP);
             keyDownward = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
 
