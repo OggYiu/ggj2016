@@ -10,7 +10,7 @@ var public_path = '../public';
 var filepath = path.join(__dirname, public_path, 'game.html');
 var appPort = 80;
 
-var gameWorld = {};
+var gameWorld = {"players":[]};
 
 app.use(express.static('../public'));
 
@@ -24,14 +24,26 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(client) {
   console.log('Connection to client established');
-  client.emit('message', gameWorld);
+  var player = {"id":gameWorld.players.length + 1, "posX":400, "posY":500, "status":'ALIVE'};
+  client.emit('new_player', player);
+  for (var i = 0; i < gameWorld.players.length; ++i)
+  {
+    client.emit('new_remote_player', gameWorld.players[i]);
+  }
+  client.broadcast.emit('new_remote_player', player);
+  gameWorld.players.push(player);
 
-  // Success!  Now listen to messages to be received
-  client.on('message', function(data) {
-    console.log('Received message from client!', data);
-    gameWorld = data;
-    console.log(gameWorld);
-    //client.broadcast.emit('message', gameWorld);
+
+  client.on('update_player', function(player) {
+    for (var i = 0; i < gameWorld.players.length; ++i)
+    {
+      if (gameWorld.players[i].id == player.id)
+      {
+        gameWorld.players[i].posX = player.posX;
+        gameWorld.players[i].posY = player.posY;
+      }
+    }
+    client.broadcast.emit('update_player', player);
   });
 
   client.on('disconnect', function() {
