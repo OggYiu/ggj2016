@@ -7,25 +7,9 @@
         <script src="enemyMissile.js"></script>
         <script src="enemyCar.js"></script>
         <script src="player.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
-
-      <script src="/socket.io/socket.io.js"></script>
-      <script>
-        var socket = io.connect('http://SERVERIP');
-        // Add a connect listener
-        socket.on('connect', function() {
-          console.log('Client has connected to the server!');
-        });
-        // Add a connect listener
-        socket.on('message', function(data) {
-          console.log('Received a message from the server!', data);
-        });
-        // Add a disconnect listener
-        socket.on('disconnect', function() {
-          console.log('The client has disconnected!');
-        });
-      </script>
 
     <script type="text/javascript">
 
@@ -99,7 +83,7 @@
             // enemyBullets.setAll('outOfBoundsKill', true);
             // enemyBullets.setAll('checkWorldBounds', true);
 
-            createPlayer( 400, 500, 1 );
+            //createPlayer( 400, 500, 1 );
             game.physics.startSystem(Phaser.Physics.ARCADE);
 
             //  The hero!
@@ -167,7 +151,7 @@
                 player.body.velocity.setTo(0, 0);
 
                 if (keyLeft.isDown)
-                {   
+                {
                     player.body.velocity.x = -200;
                 }
                 else if (keyRight.isDown)
@@ -194,6 +178,55 @@
             // }
 
         }
+
+        var playerId = null;
+        var gameWorld = {};
+
+        function CreateWorld()
+        {
+          console.log('Create Game World')
+          json = {"players":[
+            {"id":1, "posX":400, "posY":500, "status":'ALIVE'}
+          ]};
+          //createPlayer(400, 500, 1);
+          return json;
+        }
+
+        function UpdateGameWorld(json)
+        {
+          console.log("Update Game World");
+
+          if (playerId === null)
+          {
+            playerId = json.players.length+1;
+            //createPlayer(400, 500, playerId);
+            json.players.push({"id":json.players.length+1, "posX":420, "posY":300, "status":'ALIVE'});
+          }
+          return json;
+        }
+
+        var socket = io.connect('http://SERVERIP');
+        // Add a connect listener
+        socket.on('connect', function() {
+          console.log('Client has connected to the server!');
+        });
+        // Add a connect listener
+        socket.on('message', function(data) {
+          console.log('Received a message from the server!', data);
+          if (Object.keys(data).length == 0)
+          {
+            gameWorld = CreateWorld();
+            socket.emit('message', gameWorld);
+          }
+          else {
+            gameWorld = UpdateGameWorld(data);
+            socket.emit('message', gameWorld);
+          }
+        });
+        // Add a disconnect listener
+        socket.on('disconnect', function() {
+          console.log('The client has disconnected!');
+        });
     };
 
     </script>
