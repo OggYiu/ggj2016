@@ -10,7 +10,10 @@ var public_path = '../public';
 var filepath = path.join(__dirname, public_path, 'game.html');
 var appPort = 80;
 
-var gameWorld = {"players":[]};
+var gameWorld = {
+  "players":[],
+  "monsters":[]
+};
 
 app.use(express.static('../public'));
 
@@ -22,8 +25,8 @@ app.get('/', function(req, res) {
   });
 });
 
-io.on('connection', function(client) {
-  console.log('Connection to client established');
+function createPlayer(client)
+{
   var player = {"id":gameWorld.players.length + 1, "posX":400, "posY":500, "status":'ALIVE'};
   client.emit('new_player', player);
   for (var i = 0; i < gameWorld.players.length; ++i)
@@ -32,7 +35,36 @@ io.on('connection', function(client) {
   }
   client.broadcast.emit('new_remote_player', player);
   gameWorld.players.push(player);
+}
 
+function createMonster(client)
+{
+  var monster = {"id":gameWorld.monsters.length + 1, "posX":10, "posY":10, "status":'ALIVE'};
+  client.emit('new_monster', monster);
+  gameWorld.monsters.push(monster);
+}
+
+function createRemoteMonster(client)
+{
+  for (var i = 0; i < gameWorld.monsters.length; ++i)
+  {
+    client.emit('new_remote_monster', gameWorld.monsters[i]);
+  }
+}
+
+io.on('connection', function(client) {
+
+  console.log('Connection to client established');
+  createPlayer(client);
+
+  if (gameWorld.players.length == 1)
+  {
+    createMonster(client);
+  }
+  else
+  {
+    createRemoteMonster(client);
+  }
 
   client.on('update_player', function(player) {
     for (var i = 0; i < gameWorld.players.length; ++i)
