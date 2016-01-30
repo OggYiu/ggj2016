@@ -5,6 +5,7 @@
         <title>hello phaser!</title>
         <script src="phaser.min.js"></script>
         <script src="enemyCar.js"></script>
+        <script src="player.js"></script>
     </head>
     <body>
 
@@ -35,7 +36,7 @@
             game.load.spritesheet('monster_car', 'assets/monster_car.png', 40, 40);
         }
 
-        var player1;
+        var account_id = 1;
         var group_player;
         var group_enemy;
         var group_player_bullet;
@@ -71,6 +72,10 @@
         var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 
         function create() {
+            group_player = game.add.group();
+            group_player.enableBody = true;
+            group_player.physicsBodyType = Phaser.Physics.ARCADE;
+
             group_enemy = game.add.group();
             group_enemy.enableBody = true;
             group_enemy.physicsBodyType = Phaser.Physics.ARCADE;
@@ -113,7 +118,7 @@
             // enemyBullets.setAll('outOfBoundsKill', true);
             // enemyBullets.setAll('checkWorldBounds', true);
 
-            createPlayer( 400, 500 );
+            createPlayer( 400, 500, 1 );
             game.physics.startSystem(Phaser.Physics.ARCADE);
 
             //  The hero!
@@ -128,12 +133,9 @@
             group_enemy.y = 50;
         }
 
-        function createPlayer(x, y, type) {
-            player1 = game.add.sprite(x, y, 'player_1');
-            player1.anchor.setTo(0.5, 0.5);
-            player1.animations.add('walk', [ 0, 1 ], 5, true);
-            player1.play('walk');
-            game.physics.enable(player1, Phaser.Physics.ARCADE);
+        function createPlayer(x, y, id) {
+            var player = new Player(game, x, y, id);
+            group_player.add(player);
         }
 
         function createAliens(x, y, type) {
@@ -146,7 +148,19 @@
             alien.revive();
         }
 
+        function getPlayerWithId( id ) {
+            var targetPlayer;
+            group_player.forEach(function(player) {
+                if ( player.id == id ) {
+                    targetPlayer = player;
+                    return;
+                }
+            });
+            return targetPlayer;
+        }
+
         function fireBullet() {
+            group_player.forEach(function(player) {
             // console.log( "fireBullet" );
             //  To avoid them being allowed to fire too fast we set a time limit
             if (game.time.now > bulletTime) {
@@ -154,35 +168,40 @@
                 bullet = group_player_bullet.getFirstExists(false);
                 if (bullet) {
                     //  And fire it
-                    bullet.reset(player1.x, player1.y + 8);
+                    bullet.reset(player.x, player.y + 8);
                     bullet.body.velocity.y = -400;
                     bulletTime = game.time.now + 1000;
                 }
             }
+            });
         }
 
         function update() {
             fireBullet();
 
-            //  Reset the player, then check for movement keys
-            player1.body.velocity.setTo(0, 0);
+            var player = getPlayerWithId(account_id);
 
-            if (keyLeft.isDown)
-            {
-                player1.body.velocity.x = -200;
-            }
-            else if (keyRight.isDown)
-            {
-                player1.body.velocity.x = 200;
-            }
+            if ( player ) {
+                //  Reset the player, then check for movement keys
+                player.body.velocity.setTo(0, 0);
 
-            if (keyUpward.isDown)
-            {
-                player1.body.velocity.y = -200;
-            }
-            else if (keyDownward.isDown)
-            {
-                player1.body.velocity.y = 200;
+                if (keyLeft.isDown)
+                {
+                    player.body.velocity.x = -200;
+                }
+                else if (keyRight.isDown)
+                {
+                    player.body.velocity.x = 200;
+                }
+
+                if (keyUpward.isDown)
+                {
+                    player.body.velocity.y = -200;
+                }
+                else if (keyDownward.isDown)
+                {
+                    player.body.velocity.y = 200;
+                }
             }
         }
 

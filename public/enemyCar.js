@@ -13,7 +13,12 @@ var Enemy_Car = function(game, x, y, type) {
     // this.SMOKE_LIFETIME = 3000; // milliseconds
     // this.AVOID_DISTANCE = 30; // pixels
 
-    this.body.velocity.x = 10;
+    if ( x <= 0 ) {
+        this.body.velocity.x = 100;
+    }
+    if ( y <= 0 ) {
+
+    }
 };
 Enemy_Car.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy_Car.prototype.constructor = Enemy_Car;
