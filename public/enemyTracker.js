@@ -3,7 +3,8 @@ var Enemy_Tracker = function(game, targetId, x, y, targetPlayer) {
     this.id = targetId;
     this.destroyCountDown = 0;
 
-    Phaser.Sprite.call( this, game, x, y, 'monster_1' );
+    var rndValue = game.rnd.integerInRange(1, 5);
+    Phaser.Sprite.call( this, game, x, y, 'monster_' + rndValue );
 
     this.anchor.setTo( 0.5, 0.5 );
 
