@@ -19,16 +19,17 @@
         function preload() {
             game.time.advancedTiming = true;
 
-            game.load.spritesheet('player_1', 'assets/player_1.png', 42, 42);
-            game.load.spritesheet('player_2', 'assets/player_2.png', 42, 42);
-            game.load.spritesheet('player_3', 'assets/player_3.png', 42, 42);
+            game.load.spritesheet('player_1', 'assets/player_1.png', 32, 32);
+            game.load.spritesheet('player_2', 'assets/player_2.png', 32, 32);
+            game.load.spritesheet('player_3', 'assets/player_3.png', 32, 32);
             game.load.image('bullet_1', 'assets/bullet_1.png');
             game.load.spritesheet('monster_1', 'assets/monster1.png', 48, 64);
             game.load.spritesheet('monster_car', 'assets/monster_car.png', 40, 40);
             game.load.tilemap('map1CVS', 'assets/map1.csv', null, Phaser.Tilemap.CSV);
             game.load.image('map1Tiles', 'assets/mapTile1.png');
             game.load.image("boid", "assets/boid.png");
-            game.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
+            game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
+
         }
         var group_player;
         var group_enemy;
@@ -45,7 +46,7 @@
         var graphics;
         var map1;
         var magicCircleShape;
-        var explosions;
+        // var explosions;
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
 
@@ -103,7 +104,15 @@
             game.physics.startSystem(Phaser.Physics.ARCADE);
 
             explosions = game.add.group();
-            explosions.createMultiple(30, 'kaboom');
+            explosions.setAll('anchor.x', 0.5);
+            explosions.setAll('anchor.y', 0.5);
+            for (var i = 0; i < 10; i++)
+            {
+                var explosionAnimation = explosions.create(0, 0, 'kaboom', [0], false);
+                explosionAnimation.anchor.setTo(0.5, 0.5);
+                explosionAnimation.animations.add('kaboom');
+            }
+            // explosions.createMultiple(30, 'kaboom');
             // explosions.forEach(setupInvader, this);
 
             keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
@@ -134,10 +143,6 @@
             return game.nextEnemyId++;
         }
 
-        function onEnemyPlayerOverlay( enemy, player ) {
-            //console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
-        }
-
         function createPlayer(game, x, y, id) {
             var player = new Player(game, x, y, id);
             group_player.add(player);
@@ -156,7 +161,7 @@
             var alien = new Enemy_Tracker(game, targetId, x, y, getPlayerById(targetPlayerId));
             alien.checkWorldBounds = true;
             alien.events.onOutOfBounds.add(enemyOut, this);
-            alien.animations.add('kaboom');
+            // alien.animations.add('kaboom', [0, 1, 2, 3, 4], 5, true);
             group_enemy.add(alien);
             return alien;
         }
@@ -165,7 +170,7 @@
             var alien = new Enemy_Car(game, targetId, pos, type, speed);
             alien.checkWorldBounds = true;
             alien.events.onOutOfBounds.add(enemyOut, this);
-            alien.animations.add('kaboom');
+            // alien.animations.add('kaboom');
             group_enemy.add(alien);
             return alien;
         }
@@ -223,32 +228,36 @@
                 //  Reset the player, then check for movement keys
                 player.body.velocity.setTo(0, 0);
 
-                if (keyLeft.isDown)
-                {
-                    player.body.velocity.x = -200;
-                    updatePlayerPosition(player);
-                }
-                else if (keyRight.isDown)
-                {
-                    player.body.velocity.x = 200;
-                    updatePlayerPosition(player);
-                }
+                // control
 
-                if (keyUpward.isDown)
-                {
-                    player.body.velocity.y = -200;
-                    updatePlayerPosition(player);
-                }
-                else if (keyDownward.isDown)
-                {
-                    player.body.velocity.y = 200;
-                    updatePlayerPosition(player);
-                }
-                if ( keySpace.isDown ) {
-                    activeMagicCircle();
-                }
-                if ( fireButton.isDown ) {
-                    playerFireBullet( game, getPlayerById(game.account_id), game.input.x, game.input.y);
+                if ( player.alive && !player.isHurt ) {
+                    if (keyLeft.isDown)
+                    {
+                        player.body.velocity.x = -200;
+                        updatePlayerPosition(player);
+                    }
+                    else if (keyRight.isDown)
+                    {
+                        player.body.velocity.x = 200;
+                        updatePlayerPosition(player);
+                    }
+
+                    if (keyUpward.isDown)
+                    {
+                        player.body.velocity.y = -200;
+                        updatePlayerPosition(player);
+                    }
+                    else if (keyDownward.isDown)
+                    {
+                        player.body.velocity.y = 200;
+                        updatePlayerPosition(player);
+                    }
+                    if ( keySpace.isDown ) {
+                        activeMagicCircle();
+                    }
+                    if ( fireButton.isDown ) {
+                        playerFireBullet( game, getPlayerById(game.account_id), game.input.x, game.input.y);
+                    }
                 }
             }
 
@@ -258,6 +267,13 @@
             game.physics.arcade.overlap(group_enemy, group_player, onEnemyPlayerOverlay, null, this);
             game.physics.arcade.overlap(group_enemy_bullet, group_player, onEnemyBulletPlayerOverlay, null, this);
             game.physics.arcade.overlap(group_player_bullet, group_enemy, onPlayerBulletEnemyOverlay, null, this);
+        }
+
+        function onEnemyPlayerOverlay( enemy, player ) {
+            if ( player.alive && !player.isHurt ) {
+                player.hurt();
+            }
+            //console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
         }
 
         function onEnemyBulletPlayerOverlay(bullet, player) {
@@ -334,10 +350,13 @@
                                         new Phaser.Point(player1.x, player1.y), 
                                         new Phaser.Point(player2.x, player2.y), 
                                         new Phaser.Point(player3.x, player3.y) ) ) {
-                    var explosion = explosions.getFirstExists(false);
-                    explosion.reset(enemy.body.x, enemy.body.y);
-                    explosion.play('kaboom', 30, false, true);
-                    enemy.kill();
+                    if ( enemy.alive ) {
+                        var explosionAnimation = explosions.getFirstExists(false);
+                        explosionAnimation.reset(enemy.x, enemy.y);
+                        explosionAnimation.play('kaboom', 30, false, true);
+                        // enemy.play('kaboom');
+                        enemy.kill();
+                    }   
                 }
             });
         }
