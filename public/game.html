@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <title>hello phaser!</title>
         <script src="phaser.min.js"></script>
+        <script src="enemyCar.js"></script>
     </head>
     <body>
 
@@ -28,9 +29,10 @@
 
     window.onload = function() {
         function preload() {
-            game.load.image('player_1', 'assets/player_1.png');
+            game.load.spritesheet('player_1', 'assets/player_1.png', 42, 42);
             game.load.image('bullet_1', 'assets/bullet_1.png');
             game.load.spritesheet('monster_1', 'assets/monster1.png', 48, 64);
+            game.load.spritesheet('monster_car', 'assets/monster_car.png', 40, 40);
         }
 
         var player1;
@@ -52,7 +54,7 @@
             this.game.physics.enable(this, Phaser.Physics.ARCADE);
 
             // Define constants that affect motion
-            this.SPEED = 250; // missile speed pixels/second
+            this.SPEED = 100; // missile speed pixels/second
             this.TURN_RATE = 5; // turn rate in degrees/frame
             // this.WOBBLE_LIMIT = 15; // degrees
             // this.WOBBLE_SPEED = 250; // milliseconds
@@ -64,54 +66,6 @@
         Enemy.prototype = Object.create(Phaser.Sprite.prototype);
         Enemy.prototype.constructor = Enemy;
         Enemy.prototype.update = function() {
-            // Calculate the angle from the missile to the mouse cursor game.input.x
-            // and game.input.y are the mouse position; substitute with whatever
-            // target coordinates you need.
-            var targetAngle = this.game.math.angleBetween(
-                this.x, this.y,
-                player1.x, player1.y
-            );
-
-            // Add our "wobble" factor to the targetAngle to make the missile wobble
-            // Remember that this.wobble is tweening (above)
-            //targetAngle += this.game.math.degToRad(this.wobble);
-
-
-            // Make each missile steer away from other missiles.
-            // Each missile knows the group that it belongs to (missileGroup).
-            // It can calculate its distance from all other missiles in the group and
-            // steer away from any that are too close. This avoidance behavior prevents
-            // all of the missiles from bunching up too tightly and following the
-            // same track.
-
-            // Gradually (this.TURN_RATE) aim the missile towards the target angle
-            if (this.rotation !== targetAngle) {
-                // Calculate difference between the current angle and targetAngle
-                var delta = targetAngle - this.rotation;
-
-                // Keep it in range from -180 to 180 to make the most efficient turns.
-                if (delta > Math.PI) delta -= Math.PI * 2;
-                if (delta < -Math.PI) delta += Math.PI * 2;
-
-                if (delta > 0) {
-                    // Turn clockwise
-                    this.angle += this.TURN_RATE;
-                } else {
-                    // Turn counter-clockwise
-                    this.angle -= this.TURN_RATE;
-                }
-
-                // Just set angle to target angle if they are close
-                if (Math.abs(delta) < this.game.math.degToRad(this.TURN_RATE)) {
-                    this.rotation = targetAngle;
-                }
-            }
-
-            // Calculate velocity vector based on this.rotation and this.SPEED
-            this.body.velocity.x = Math.cos(this.rotation) * this.SPEED;
-            this.body.velocity.y = Math.sin(this.rotation) * this.SPEED;
-
-            // console.log( "velocity : " + this.body.velocity.x + ", " + this.body.velocity.y );
         };
 
         var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
@@ -159,12 +113,10 @@
             // enemyBullets.setAll('outOfBoundsKill', true);
             // enemyBullets.setAll('checkWorldBounds', true);
 
+            createPlayer( 400, 500 );
             game.physics.startSystem(Phaser.Physics.ARCADE);
 
             //  The hero!
-            player1 = game.add.sprite(400, 500, 'player_1');
-            player1.anchor.setTo(0.5, 0.5);
-            game.physics.enable(player1, Phaser.Physics.ARCADE);
 
             keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
             keyRight = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
@@ -176,8 +128,16 @@
             group_enemy.y = 50;
         }
 
+        function createPlayer(x, y, type) {
+            player1 = game.add.sprite(x, y, 'player_1');
+            player1.anchor.setTo(0.5, 0.5);
+            player1.animations.add('walk', [ 0, 1 ], 5, true);
+            player1.play('walk');
+            game.physics.enable(player1, Phaser.Physics.ARCADE);
+        }
+
         function createAliens(x, y, type) {
-            var alien = new Enemy(game, x, y, type);
+            var alien = new Enemy_Car(game, x, y, type);
             group_enemy.add(alien);
             alien.anchor.setTo(0.5, 0.5);
             alien.animations.add('walk', [ 0, 1 ], 5, true);
