@@ -19,8 +19,8 @@ app.use(express.static('../public'));
 
 app.get('/', function(req, res) {
   fs.readFile(filepath, 'utf8', function(err, text) {
-    //text = text.replace("SERVERIP", ip.address() + ":" + appPort);
-    text = text.replace("SERVERIP", "localhost" + ":" + appPort);
+    text = text.replace("SERVERIP", ip.address() + ":" + appPort);
+    //text = text.replace("SERVERIP", "localhost" + ":" + appPort);
     res.send(text);
   });
 });
@@ -54,6 +54,15 @@ io.on('connection', function(client) {
   });
 
   client.on('update_monster', function(monster) {
+    for (var i = 0; i < gameWorld.monsters.length; ++i)
+    {
+      if (gameWorld.monsters[i].id == monster.id)
+      {
+        gameWorld.monsters[i].posX = monster.posX;
+        gameWorld.monsters[i].posY = monster.posY;
+      }
+    }
+    client.broadcast.emit('update_monster', monster);
   });
 
   client.on('update_player', function(player) {
