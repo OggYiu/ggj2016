@@ -1,6 +1,7 @@
 var Enemy_Car = function(game, targetId, type, speed) {
     this.entityType = "Enemy_Car";
     this.id = targetId;
+    this.destroyCountDown = 0;
 
     var targetX = 0;
     var targetY = 0;
@@ -75,4 +76,21 @@ var Enemy_Car = function(game, targetId, type, speed) {
 Enemy_Car.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy_Car.prototype.constructor = Enemy_Car;
 Enemy_Car.prototype.update = function() {
+    if ( this.destroyCountDown > 0 ) {
+        var dt = this.game.time.now - this.lastTime;
+        this.lastTime = this.game.time.now
+        this.destroyCountDown -= dt;
+            // console.log( "car count down: " + this.destroyCountDown );
+        if ( this.destroyCountDown <= 0 ) {
+            // console.log( "car destroy" );
+            this.destroy();
+        }
+        return;
+    }
+};
+Enemy_Car.prototype.die = function() {
+    this.kill();
+    this.destroyCountDown = 1000;
+    this.lastTime = this.game.time.now;
+    // this.destroy();
 };
