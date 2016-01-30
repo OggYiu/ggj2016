@@ -178,19 +178,23 @@
                 if (keyLeft.isDown)
                 {
                     player.body.velocity.x = -200;
+                    updatePlayerPosition(player);
                 }
                 else if (keyRight.isDown)
                 {
                     player.body.velocity.x = 200;
+                    updatePlayerPosition(player);
                 }
 
                 if (keyUpward.isDown)
                 {
                     player.body.velocity.y = -200;
+                    updatePlayerPosition(player);
                 }
                 else if (keyDownward.isDown)
                 {
                     player.body.velocity.y = 200;
+                    updatePlayerPosition(player);
                 }
             }
 
@@ -219,56 +223,55 @@
             // {
             //     game.debug.body(aliens.children[i]);
             // }
+        }
 
+        var socket = null;
+
+        function updatePlayerPosition(player)
+        {
+          var json = {"id":account_id, "posX":player.x, "posY":player.y, "status":'ALIVE'};
+          socket.emit('update_player', json);
         }
 
         function connectServer()
         {
-          var playerId = null;
-          var gameWorld = {};
-
-          function CreateWorld()
+          function UpdateRemotePlayer(player)
           {
-            console.log('Create Game World');
-            json = {"players":[
-              {"id":1, "posX":400, "posY":500, "status":'ALIVE'}
-            ]};
-
-            createPlayer(game, 400, 500, 1);
-            return json;
+            var remotePlayer = getPlayerWithId(player.id);
+            remotePlayer.x = player.posX;
+            remotePlayer.y = player.posY;
           }
 
-          function UpdateGameWorld(json)
+          function NewPlayer(player)
           {
-            console.log("Update Game World");
-
-            if (playerId === null)
-            {
-              playerId = json.players.length+1;
-              createPlayer(game, 400, 500, playerId);
-              json.players.push({"id":json.players.length+1, "posX":420, "posY":300, "status":'ALIVE'});
-            }
-            return json;
+            createPlayer(game, player.posX, player.posY, player.id);
+            account_id = player.id;
           }
 
-          var socket = io.connect('http://SERVERIP');
+          function NewRemotePlayer(player)
+          {
+            createPlayer(game, player.posX, player.posY, player.id);
+          }
+
+          socket = io.connect('http://SERVERIP');
+
           // Add a connect listener
           socket.on('connect', function() {
             console.log('Client has connected to the server!');
           });
-          // Add a connect listener
-          socket.on('message', function(data) {
-            console.log('Received a message from the server!', data);
-            if (Object.keys(data).length == 0)
-            {
-              gameWorld = CreateWorld();
-              socket.emit('message', gameWorld);
-            }
-            else {
-              gameWorld = UpdateGameWorld(data);
-              socket.emit('message', gameWorld);
-            }
+
+          socket.on('new_player', function(player) {
+            NewPlayer(player);
           });
+
+          socket.on('new_remote_player', function(player) {
+            NewRemotePlayer(player);
+          });
+
+          socket.on('update_player', function(player) {
+            UpdateRemotePlayer(player);
+          });
+
           // Add a disconnect listener
           socket.on('disconnect', function() {
             console.log('The client has disconnected!');
