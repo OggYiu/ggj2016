@@ -116,7 +116,7 @@
         }
 
         function onEnemyPlayerOverlay( enemy, player ) {
-            console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
+            //console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
         }
 
         function createPlayer(game, x, y, id) {
@@ -229,8 +229,10 @@
 
         function updatePlayerPosition(player)
         {
-          var json = {"id":account_id, "posX":player.x, "posY":player.y, "status":'ALIVE'};
-          socket.emit('update_player', json);
+            var json = {"id":account_id, "posX":player.x, "posY":player.y, "status":'ALIVE'};
+            if ( socket ) {
+                socket.emit('update_player', json);
+            }
         }
 
         function connectServer()
