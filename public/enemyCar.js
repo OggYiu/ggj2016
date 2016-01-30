@@ -1,5 +1,21 @@
-var Enemy_Car = function(game, x, y, type) {
-    Phaser.Sprite.call( this, game, x, y, 'monster_car' );
+var Enemy_Car = function(game, pos, type) {
+    var targetX = 0;
+    var targetY = 0;
+    switch( type ) {
+        case 0: {
+        }
+        break;
+        case 1: {
+        }
+        break;
+        case 2: {
+        }
+        break;
+        case 3: {
+        }
+        break;
+    }
+    Phaser.Sprite.call( this, game, targetX, targetY, 'monster_car' );
 
     this.anchor.setTo( 0.5, 0.5 );
 
@@ -13,12 +29,12 @@ var Enemy_Car = function(game, x, y, type) {
     // this.SMOKE_LIFETIME = 3000; // milliseconds
     // this.AVOID_DISTANCE = 30; // pixels
 
-    if ( x <= 0 ) {
-        this.body.velocity.x = 100;
-    }
-    if ( y <= 0 ) {
 
-    }
+    // if ( x <= 0 ) {
+    //     this.body.velocity.x = 100;
+    // }
+    // if ( y <= 0 ) {
+    // }
 };
 Enemy_Car.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy_Car.prototype.constructor = Enemy_Car;

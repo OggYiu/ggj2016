@@ -188,7 +188,7 @@
           json = {"players":[
             {"id":1, "posX":400, "posY":500, "status":'ALIVE'}
           ]};
-          //createPlayer(400, 500, 1);
+          createPlayer(400, 500, 1);
           return json;
         }
 
@@ -199,7 +199,7 @@
           if (playerId === null)
           {
             playerId = json.players.length+1;
-            //createPlayer(400, 500, playerId);
+            createPlayer(400, 500, playerId);
             json.players.push({"id":json.players.length+1, "posX":420, "posY":300, "status":'ALIVE'});
           }
           return json;
