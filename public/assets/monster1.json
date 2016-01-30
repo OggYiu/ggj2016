@@ -1,0 +1,28 @@
+{"frames": [
+
+{
+	"filename": "monster1_walk1.png",
+	"frame": {"x":1,"y":65,"w":44,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":44,"h":64},
+	"sourceSize": {"w":44,"h":64}
+},
+{
+	"filename": "monster1_walk2.png",
+	"frame": {"x":1,"y":1,"w":48,"h":62},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":48,"h":62},
+	"sourceSize": {"w":48,"h":62}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "monster1.png",
+	"format": "RGBA8888",
+	"size": {"w":50,"h":130},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:fecac80556d0b15459d22ca46b07cdbb:e2c53eda7d4d0484b5f5b9089fd6c677:be3779e66d4487ea728e8873b08038dc$"
+}
+}
