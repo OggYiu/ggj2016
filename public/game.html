@@ -93,17 +93,17 @@
             keyUpward = game.input.keyboard.addKey(Phaser.Keyboard.UP);
             keyDownward = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
 
-            createAliens();
+            createAliens(game);
             group_enemy.x = 100;
             group_enemy.y = 50;
         }
 
-        function createPlayer(x, y, id) {
+        function createPlayer(game, x, y, id) {
             var player = new Player(game, x, y, id);
             group_player.add(player);
         }
 
-        function createAliens(x, y, type) {
+        function createAliens(game, x, y, type) {
             var alien = new Enemy_Car(game, x, y, type);
             group_enemy.add(alien);
         }
@@ -179,11 +179,12 @@
 
         function CreateWorld()
         {
-          console.log('Create Game World')
+          console.log('Create Game World');
           json = {"players":[
             {"id":1, "posX":400, "posY":500, "status":'ALIVE'}
           ]};
-          createPlayer(400, 500, 1);
+
+          createPlayer(game, 400, 500, 1);
           return json;
         }
 
@@ -194,7 +195,7 @@
           if (playerId === null)
           {
             playerId = json.players.length+1;
-            createPlayer(400, 500, playerId);
+            createPlayer(game, 400, 500, playerId);
             json.players.push({"id":json.players.length+1, "posX":420, "posY":300, "status":'ALIVE'});
           }
           return json;
