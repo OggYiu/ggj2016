@@ -54,7 +54,7 @@
         game.myScreenHeight = 608;
         game.nextEnemyId = 1;
         game.account_id = 1;
-        
+
         function create() {
             map1 = game.add.tilemap('map1CVS', 32, 32);
             map1.addTilesetImage('map1Tiles');
@@ -117,17 +117,21 @@
             createPlayer( game, 500, 400, 2 );
             createPlayer( game, 300, 200, 3 );
 
-            createEnemyTracker(game, 10, 10, game.rnd.integerInRange(1, 3));
-            createEnemyCar(game, game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
-            createEnemyCar(game, game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
-            createEnemyCar(game, game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
-            createEnemyCar(game, game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
+            createEnemyTracker(game, getNextEnemyId(), 10, 10, game.rnd.integerInRange(1, 3));
+            createEnemyCar(game, getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
+            createEnemyCar(game, getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
+            createEnemyCar(game, getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
+            createEnemyCar(game, getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
 
             // magicCircleShape = new Phaser.Circle(100, 100, 128);
             // group_enemy.x = 100;
             // group_enemy.y = 50;
 
             //  You can also create an empty Polygon:
+        }
+
+        function getNextEnemyId() {
+            return game.nextEnemyId++;
         }
 
         function onEnemyPlayerOverlay( enemy, player ) {
@@ -148,20 +152,22 @@
             enemy.destroy();
         }
 
-        function createEnemyTracker( game, x, y, targetPlayerId ) {
-            var alien = new Enemy_Tracker(game, x, y, getPlayerById(targetPlayerId));
+        function createEnemyTracker( game, targetId, x, y, targetPlayerId ) {
+            var alien = new Enemy_Tracker(game, targetId, x, y, getPlayerById(targetPlayerId));
             alien.checkWorldBounds = true;
             alien.events.onOutOfBounds.add(enemyOut, this);
             alien.animations.add('kaboom');
             group_enemy.add(alien);
+            return alien;
         }
 
-        function createEnemyCar(game, pos, type, speed) {
-            var alien = new Enemy_Car(game, pos, type, speed);
+        function createEnemyCar(game, targetId, pos, type, speed) {
+            var alien = new Enemy_Car(game, targetId, pos, type, speed);
             alien.checkWorldBounds = true;
             alien.events.onOutOfBounds.add(enemyOut, this);
             alien.animations.add('kaboom');
             group_enemy.add(alien);
+            return alien;
         }
 
         function getPlayerById( id ) {
