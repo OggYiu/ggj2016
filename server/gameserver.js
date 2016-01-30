@@ -17,7 +17,7 @@ app.use(express.static('../public'));
 app.get('/', function(req, res) {
   fs.readFile(filepath, 'utf8', function(err, text) {
     //text = text.replace("SERVERIP", ip.address() + ":" + appPort);
-    text = text.replace("SERVERIP", "127.0.0.1" + ":" + appPort);
+    text = text.replace("SERVERIP", "localhost" + ":" + appPort);
     res.send(text);
   });
 });
@@ -31,7 +31,7 @@ io.on('connection', function(client) {
     console.log('Received message from client!', data);
     gameWorld = data;
     console.log(gameWorld);
-    //io.broadcast.emit('message', gameWorld);
+    //client.broadcast.emit('message', gameWorld);
   });
 
   client.on('disconnect', function() {
