@@ -7,6 +7,6 @@ Download and Install v4.2.6 LTS
 
 Start Server
 cd server
-node webserver.js
+node gameserver.js
 
-Open web browser and enter 127.0.0.1:8080
+Open web browser and enter 127.0.0.1
