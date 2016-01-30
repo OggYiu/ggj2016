@@ -1,6 +1,7 @@
 var Enemy_Tracker = function(game, targetId, x, y, targetPlayer) {
     this.entityType = "Enemy_Tracker";
     this.id = targetId;
+    this.destroyCountDown = 0;
 
     Phaser.Sprite.call( this, game, x, y, 'monster_1' );
 
@@ -29,6 +30,20 @@ var Enemy_Tracker = function(game, targetId, x, y, targetPlayer) {
 Enemy_Tracker.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy_Tracker.prototype.constructor = Enemy_Tracker;
 Enemy_Tracker.prototype.update = function() {
+    if ( this.destroyCountDown > 0 ) {
+        var dt = this.game.time.now - this.lastTime;
+        this.lastTime = this.game.time.now
+        this.destroyCountDown -= dt;
+        if ( this.destroyCountDown <= 0 ) {
+            this.destroy();
+        }
+        return;
+    }
+
+    if ( !this.alive ) {
+        return;
+    }
+
     if ( this.game.account_id != 1 ) {
         return;
     }
@@ -65,3 +80,11 @@ Enemy_Tracker.prototype.update = function() {
     this.body.velocity.x = Math.cos(targetAngle) * this.SPEED;
     this.body.velocity.y = Math.sin(targetAngle) * this.SPEED;
 }
+
+Enemy_Tracker.prototype.die = function() {
+    this.kill();
+    // console.log( "die tracker" );
+    this.destroyCountDown = 1000;
+    this.lastTime = this.game.time.now;
+    // this.destroy();
+};

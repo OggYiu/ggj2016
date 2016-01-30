@@ -21,6 +21,11 @@ var Player = function(game, x, y, id) {
     }
     Phaser.Sprite.call( this, game, x, y, imageName );
 
+    // this.filters = [this.game.grayFilter];
+
+    // this.filters = [ this.game.glowFilter ];
+    // this.filters = null;
+
     this.anchor.setTo( 0.5, 0.5 );
     game.physics.enable(this, Phaser.Physics.ARCADE);
     //this.SPEED = 100;
