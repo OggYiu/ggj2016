@@ -356,6 +356,10 @@
                 sound_hurt.play();
                 player.hurt();
                 killMonster( enemy );
+
+                if ( player.id == game.account_id ) {
+                    --player.hp;
+                }
             }
             //console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
         }
@@ -387,7 +391,8 @@
                     magicTriangle.setTo([ p1, p2, p3 ]);
                     graphics.clear();
                     if ( !game.isMagicTriangleTriggered ) {
-                        graphics.beginFill(0xFF33ff, 0.3);
+                        var color = magicTriangleArea / MAGIC_TRIANGLE_AREA_LIMIT;
+                        graphics.beginFill(0xFFFFFF * color, 0.8);
                     } else {
                         graphics.beginFill(0xFF0000, 1);
                     }
@@ -532,16 +537,16 @@
             //                         new Phaser.Point(player3.x, player3.y) );
             // game.debug.geom(magicCircleShape,'#cfffff');
             game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
-            game.debug.text("score: " + game.score || '--', 600, 14, "#00ff00");
+            game.debug.text("score: " + game.score || '--', 680, 14, "#00ff00");
 
             if ( player1 ) {
-                game.debug.text("player 1: " + player1.hp || '--', 100, 14, "#00ff00");
+                game.debug.text("player1 hp: " + player1.hp || '--', 100, 14, "#00ff00");
             }
             if ( player2 ) {
-                game.debug.text("player 2: " + player2.hp || '--', 250, 14, "#00ff00");
+                game.debug.text("player2 hp: " + player2.hp || '--', 300, 14, "#00ff00");
             }
             if ( player3 ) {
-                game.debug.text("player 3: " + player3.hp || '--', 400, 14, "#00ff00");
+                game.debug.text("player3 hp: " + player3.hp || '--', 500, 14, "#00ff00");
             }
             updateMagicCircle();
             // for (var i = 0; i < aliens.length; i++)

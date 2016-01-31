@@ -74,7 +74,6 @@ Player.prototype.hurt = function() {
     this.play( 'hurt' );    
     this.currentState = this.stateHurtName;
     this.filters = null;
-    --this.hp;
 };
 
 Player.prototype.attack = function() {
