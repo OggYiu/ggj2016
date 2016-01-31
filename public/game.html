@@ -516,9 +516,6 @@
           if (monster)
           {
             var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
-
-            // console.log(json);
-
             if ( socket ) {
                 socket.emit('update_monster', json);
             }
@@ -530,8 +527,16 @@
           function UpdateRemoteMonster(monster)
           {
             var remoteMonster = getMonsterById(monster.id);
-            remoteMonster.x = monster.posX;
-            remoteMonster.y = monster.posY;
+            if (remoteMonster)
+            {
+              remoteMonster.x = monster.posX;
+              remoteMonster.y = monster.posY;
+
+              if (monster.alive == false)
+              {
+                killMonster(remoteMonster);
+              }
+            }
           }
 
           function UpdateRemotePlayer(player)
