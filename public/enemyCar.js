@@ -2,6 +2,7 @@ var Enemy_Car = function(game, targetId, type, speed) {
     this.entityType = "Enemy_Car";
     this.id = targetId;
     this.destroyCountDown = 0;
+    this.stopSend = false;
 
     var targetX = 0;
     var targetY = 0;

@@ -2,6 +2,7 @@ var Enemy_Tracker = function(game, targetId, x, y, targetPlayer) {
     this.entityType = "Enemy_Tracker";
     this.id = targetId;
     this.destroyCountDown = 0;
+    this.stopSend = false;
 
     var rndValue = game.rnd.integerInRange(1, 5);
     Phaser.Sprite.call( this, game, x, y, 'monster_' + rndValue );

@@ -67,7 +67,7 @@
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
         var MAGIC_TRIANGLE_AREA_LIMIT = 35000;
-        var isSinglePlayer = true;
+        var isSinglePlayer = false;
         var monsterGenerator;
         var music;
         var isMagicTriangleTriggered = false;
@@ -600,9 +600,17 @@
         {
           if (monster)
           {
-              var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
-              if ( socket ) {
-                  socket.emit('update_monster', json);
+              console.log(monster.stopSend);
+              if (monster.stopSend == false)
+              {
+                if (monster.alive == false)
+                {
+                  monster.stopSend = true;
+                }
+                var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
+                if ( socket ) {
+                    socket.emit('update_monster', json);
+                }
               }
           }
         }
@@ -614,12 +622,16 @@
             var remoteMonster = getMonsterById(monster.id);
             if (remoteMonster)
             {
-              remoteMonster.x = monster.posX;
-              remoteMonster.y = monster.posY;
+              if (remoteMonster.alive)
+              {
+                remoteMonster.x = monster.posX;
+                remoteMonster.y = monster.posY;
+              }
 
               if (remoteMonster.alive == true && monster.alive == false)
               {
                 killMonster(remoteMonster);
+                //remoteMonster.stopSend = true;
               }
             }
           }

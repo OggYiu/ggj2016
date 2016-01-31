@@ -20,8 +20,8 @@ app.use(express.static('../public'));
 
 app.get('/', function(req, res) {
   fs.readFile(filepath, 'utf8', function(err, text) {
-    //text = text.replace("SERVERIP", ip.address() + ":" + appPort);
-    text = text.replace("SERVERIP", "localhost" + ":" + appPort);
+    text = text.replace("SERVERIP", ip.address() + ":" + appPort);
+    //text = text.replace("SERVERIP", "localhost" + ":" + appPort);
     res.send(text);
   });
 });
