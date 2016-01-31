@@ -68,7 +68,7 @@ io.on('connection', function(client) {
         }
       }
     }
-    client.broadcast.emit('update_monster', monster);
+    client.volatile.broadcast.emit('update_monster', monster);
   });
 
   client.on('update_player', function(player) {
