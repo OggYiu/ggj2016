@@ -9,7 +9,7 @@ var Player = function(game, x, y, id) {
 
     this.HURT_INTERVAL = 2000;
     this.ATTACK_INTERVAL = 1000;
-    this.hp = 10;
+    this.hp = 20;
 
     this.currentState = this.stateNormalName;
 
