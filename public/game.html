@@ -311,8 +311,7 @@
         function onEnemyPlayerOverlay( enemy, player ) {
             if ( player.alive && !player.isHurt ) {
                 player.hurt();
-                playExplosionAnimation( enemy.x, enemy.y );
-                enemy.die();
+                game.killMonster( enemey );
             }
             //console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
         }
@@ -412,11 +411,16 @@
                                         new Phaser.Point(player2.x, player2.y),
                                         new Phaser.Point(player3.x, player3.y) ) ) {
                     if ( enemy.alive ) {
-                        playExplosionAnimation( enemy.x, enemy.y );
-                        enemy.die();
+                        game.killMonster(enemy);
                     }
                 }
             });
+        }
+
+        function killMonster( enemy ) {
+            game.killEnemy(enemy);
+            playExplosionAnimation( enemy.x, enemy.y );
+            enemy.die();
         }
 
         function playExplosionAnimation( targetX, targetY ) {
