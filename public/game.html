@@ -323,7 +323,7 @@
         }
 
         function onEnemyPlayerOverlay( enemy, player ) {
-            if ( player.alive && !player.isHurt() ) {
+            if ( player.alive ) {
                 player.hurt();
                 killMonster( enemy );
             }
