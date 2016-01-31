@@ -57,6 +57,7 @@
         var FIREBALL_HEIGHT = 600;
         var isSinglePlayer = false;
         var monsterGenerator;
+        // var enemyDiedList = null;
 
         var game = new Phaser.Game(800, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
         game.myScreenWidth = 800;
@@ -252,12 +253,19 @@
         function update() {
             // console.log( "mouse pos : " + game.input.mousePointer.x + ", " + game.input.mousePointer.y);
 
+            // if ( enemyDiedList ) {
+            //     for ( var i = 0; i < enemyDiedList.length; ++i ) {
+            //         enemyDiedList[i].die();
+            //     }
+            //     enemyDiedList = null;
+            // }
+
             if (monsterGenerator)
             {
               monsterGenerator.update();
             }
 
-            fireBullet();
+            //fireBullet();
 
             var player = getPlayerById(game.account_id);
 
@@ -293,7 +301,7 @@
                         activeMagicCircle();
                     }
                     if ( fireButton.isDown ) {
-                        playerFireBullet( game, getPlayerById(game.account_id), game.input.x, game.input.y);
+                        // playerFireBullet( game, getPlayerById(game.account_id), game.input.x, game.input.y);
                     }
                 }
             }
@@ -311,7 +319,7 @@
         function onEnemyPlayerOverlay( enemy, player ) {
             if ( player.alive && !player.isHurt ) {
                 player.hurt();
-                game.killMonster( enemey );
+                game.killMonster( enemy );
             }
             //console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
         }
@@ -418,8 +426,12 @@
         }
 
         function killMonster( enemy ) {
-            game.killEnemy(enemy);
             playExplosionAnimation( enemy.x, enemy.y );
+            // if ( !enemyDiedList ) {
+            //     enemyDiedList = [];
+            // }
+            // enemy.kill();
+            // enemyDiedList.push( enemy );
             enemy.die();
         }
 
@@ -479,7 +491,7 @@
           {
             var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
 
-            console.log(json);
+            // console.log(json);
 
             if ( socket ) {
                 socket.emit('update_monster', json);
