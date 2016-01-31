@@ -59,3 +59,29 @@ Player.prototype.hurt = function() {
     this.isHurt = true;
     this.play( 'hurt' );
 };
+
+Player.prototype.attack = function() {
+    // console.log( "hrut");
+    this.hurtCoolDown = 2000;
+    this.lastTime = this.game.time.now;
+    this.isHurt = true;
+    this.play( 'hurt' );
+};
+
+Player.prototype.normal = function() {
+    // console.log( "hrut");
+    this.hurtCoolDown = 0;
+    this.isHurt = false;
+    this.play( 'hurt' );
+};
+
+Player.prototype.changeState = function( state ) {
+    switch( state ) {
+        case "hurt":
+            this.hurt();
+            break;
+        case "attack":
+            this.attack();
+            break;
+    }
+}
