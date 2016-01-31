@@ -58,7 +58,7 @@
         // var explosions;
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
-        var isSinglePlayer = true;
+        var isSinglePlayer = false;
         var monsterGenerator;
         // var enemyDiedList = null;
 
@@ -487,6 +487,7 @@
         }
 
         var socket = null;
+        var timeout = [];
 
         function createServerMonster(monster)
         {
@@ -497,6 +498,7 @@
                 socket.emit('new_remote_monster', json);
             }
 
+            //timeout[monster.id] = setInterval(function(){ updateMonsterPosition(monster); }, 50);
             setInterval(function(){ updateMonsterPosition(monster); }, 50);
           }
         }
@@ -516,10 +518,10 @@
         {
           if (monster)
           {
-            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
-            if ( socket ) {
-                socket.emit('update_monster', json);
-            }
+              var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
+              if ( socket ) {
+                  socket.emit('update_monster', json);
+              }
           }
         }
 
@@ -533,7 +535,7 @@
               remoteMonster.x = monster.posX;
               remoteMonster.y = monster.posY;
 
-              if (monster.alive == false)
+              if (remoteMonster.alive == true && monster.alive == false)
               {
                 killMonster(remoteMonster);
               }
