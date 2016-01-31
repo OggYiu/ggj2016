@@ -69,6 +69,7 @@
         var isSinglePlayer = true;
         var monsterGenerator;
         var music;
+        var isMagicTriangleTriggered = false;
         // var enemyDiedList = null;
 
         var game = new Phaser.Game(800, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
@@ -96,9 +97,12 @@
             game.glowFilter = new Phaser.Filter(game, null, glowFragmentSrc);
             game.glowFilter.setResolution(800, 600);
 
-            music = game.add.audio('background_music');
-            music.volume = 0.5;
-            music.play();
+            if ( game.account_id == 1 ) {
+                music = game.add.audio('background_music');
+                music.volume = 0.5;
+                music.play();
+                music.loop = true;
+            }
 
             // monsterGenerator = new MonsterGenerator(game);
             // game.grayFilter = new Phaser.Filter( game, null, grayFragmentSrc );
@@ -303,7 +307,7 @@
 
                 // control
 
-                if ( player.alive && !player.isHurt() && !player.isAttacking() ) {
+                if ( !player.isDied() && player.alive && !player.isHurt() && !player.isAttacking() ) {
                     if (keyLeft.isDown)
                     {
                         player.body.velocity.x = -200;
@@ -348,7 +352,7 @@
         }
 
         function onEnemyPlayerOverlay( enemy, player ) {
-            if ( player.alive ) {
+            if ( player.alive && !player.isDied() ) {
                 sound_hurt.play();
                 player.hurt();
                 killMonster( enemy );
@@ -382,7 +386,11 @@
                     //  And then populate it via setTo, using any combination of values as above
                     magicTriangle.setTo([ p1, p2, p3 ]);
                     graphics.clear();
-                    graphics.beginFill(0xFF33ff, 0.3);
+                    if ( !game.isMagicTriangleTriggered ) {
+                        graphics.beginFill(0xFF33ff, 0.3);
+                    } else {
+                        graphics.beginFill(0xFF0000, 1);
+                    }
                     graphics.drawPolygon(magicTriangle.points);
                     graphics.endFill();
                 } else {
@@ -452,6 +460,8 @@
                 return;
             }
 
+            game.isMagicTriangleTriggered = false;
+
             var player1 = getPlayerById(1);
             var player2 = getPlayerById(2);
             var player3 = getPlayerById(3);
@@ -468,6 +478,7 @@
                 return;
             }
 
+            game.isMagicTriangleTriggered = true;
             magicTriangle.setTo([ new Phaser.Point(player1.x, player1.y), new Phaser.Point(player2.x, player2.y), new Phaser.Point(player3.x, player3.y)]);
 
             var monsterKilled = false;
@@ -521,7 +532,17 @@
             //                         new Phaser.Point(player3.x, player3.y) );
             // game.debug.geom(magicCircleShape,'#cfffff');
             game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
-            game.debug.text("score: " + game.score || '--', 300, 14, "#00ff00");
+            game.debug.text("score: " + game.score || '--', 600, 14, "#00ff00");
+
+            if ( player1 ) {
+                game.debug.text("player 1: " + player1.hp || '--', 100, 14, "#00ff00");
+            }
+            if ( player2 ) {
+                game.debug.text("player 2: " + player2.hp || '--', 250, 14, "#00ff00");
+            }
+            if ( player3 ) {
+                game.debug.text("player 3: " + player3.hp || '--', 400, 14, "#00ff00");
+            }
             updateMagicCircle();
             // for (var i = 0; i < aliens.length; i++)
             // {

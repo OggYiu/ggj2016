@@ -9,6 +9,7 @@ var Player = function(game, x, y, id) {
 
     this.HURT_INTERVAL = 2000;
     this.ATTACK_INTERVAL = 1000;
+    this.hp = 10;
 
     this.currentState = this.stateNormalName;
 
@@ -73,6 +74,7 @@ Player.prototype.hurt = function() {
     this.play( 'hurt' );    
     this.currentState = this.stateHurtName;
     this.filters = null;
+    --this.hp;
 };
 
 Player.prototype.attack = function() {
@@ -96,6 +98,9 @@ Player.prototype.normal = function() {
 };
 
 Player.prototype.changeState = function( state ) {
+    if ( this.isDied() ) {
+        return;
+    }
     switch( state ) {
         case this.stateHurtName:
             this.hurt();
@@ -119,4 +124,8 @@ Player.prototype.isHurt = function() {
 
 Player.prototype.isAttacking = function() {
     return this.checkState( this.stateAttackName );
+}
+
+Player.prototype.isDied = function() {
+    return this.hp <= 0;
 }
