@@ -19,6 +19,8 @@
 
     window.onload = function() {
         function preload() {
+            game.stage.disableVisibilityChange = true;
+
             game.time.advancedTiming = true;
 
             game.load.spritesheet('player_1', 'assets/player_1.png', 32, 32);
@@ -43,7 +45,7 @@
         var group_enemy_bullet;
         var keyLeft;
         var keyRight;
-        var keySpace;
+        var keyAttack;
         var keyUpward;
         var keyDownward;
         var fireButton;
@@ -55,7 +57,7 @@
         // var explosions;
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
-        var isSinglePlayer = false;
+        var isSinglePlayer = true;
         var monsterGenerator;
         // var enemyDiedList = null;
 
@@ -134,7 +136,7 @@
             keyRight = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
             keyUpward = game.input.keyboard.addKey(Phaser.Keyboard.UP);
             keyDownward = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
-            keySpace = game.input.keyboard.addKey(Phaser.Keyboard.A);
+            keyAttack = game.input.keyboard.addKey(Phaser.Keyboard.A);
             fireButton = game.input.mousePointer;
 
             if ( !isSinglePlayer ) {
@@ -143,6 +145,7 @@
                 createPlayer( game, 400, 500, 1 );
                 createPlayer( game, 500, 400, 2 );
                 createPlayer( game, 300, 200, 3 );
+                monsterGenerator = new MonsterGenerator(game);
 
                 // game.createEnemyTracker(game, game.getNextEnemyId(), 10, 10, game.rnd.integerInRange(1, 3));
                 // game.createEnemyCar(game, game.getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
@@ -275,7 +278,7 @@
 
                 // control
 
-                if ( player.alive && !player.isHurt ) {
+                if ( player.alive && !player.isHurt() && !player.isAttacking() ) {
                     if (keyLeft.isDown)
                     {
                         player.body.velocity.x = -200;
@@ -297,14 +300,16 @@
                         player.body.velocity.y = 200;
                         updatePlayerPosition(player);
                     }
-                    if ( keySpace.isDown ) {
-                        activeMagicCircle();
+                    if ( keyAttack.isDown ) {
+                        player.changeState( player.stateAttackName );
                     }
                     if ( fireButton.isDown ) {
                         // playerFireBullet( game, getPlayerById(game.account_id), game.input.x, game.input.y);
                     }
                 }
             }
+
+            activeMagicCircle();
 
             // if ( fireballFilter ) {
             //     fireballFilter.update();
@@ -317,9 +322,9 @@
         }
 
         function onEnemyPlayerOverlay( enemy, player ) {
-            if ( player.alive && !player.isHurt ) {
+            if ( player.alive && !player.isHurt() ) {
                 player.hurt();
-                game.killMonster( enemy );
+                killMonster( enemy );
             }
             //console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
         }
@@ -410,19 +415,40 @@
             var player2 = getPlayerById(2);
             var player3 = getPlayerById(3);
 
-            //  And then populate it via setTo, using any combination of values as above
+            if ( !player1 || !player2 || !player3 ) {
+                return;
+            }
+
+            if ( !isSinglePlayer ) {
+                if ( !player1.isAttacking() || !player2.isAttacking() || !player3.isAttacking() ) {
+                    return;
+                }
+            } else if ( !player1.isAttacking() ) {
+                return;
+            }
+
             magicTriangle.setTo([ new Phaser.Point(player1.x, player1.y), new Phaser.Point(player2.x, player2.y), new Phaser.Point(player3.x, player3.y)]);
 
+            var monsterKilled = false;
             group_enemy.forEach(function(enemy) {
                 if ( PointInTriangle(   new Phaser.Point( enemy.x, enemy.y),
                                         new Phaser.Point(player1.x, player1.y),
                                         new Phaser.Point(player2.x, player2.y),
                                         new Phaser.Point(player3.x, player3.y) ) ) {
                     if ( enemy.alive ) {
-                        game.killMonster(enemy);
+                        killMonster(enemy);
+                        monsterKilled = true;
                     }
                 }
             });
+
+            if ( !monsterKilled ) {
+                return;
+            }
+            // restore all player to normal
+            player1.changeState( player1.stateNormalName );
+            player2.changeState( player1.stateNormalName );
+            player3.changeState( player1.stateNormalName );
         }
 
         function killMonster( enemy ) {

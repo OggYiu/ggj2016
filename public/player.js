@@ -2,7 +2,15 @@ var Player = function(game, x, y, id) {
     this.entityType = "Player";
     this.id = id;
     this.hurtCoolDown = 0;
-    this.isHurt = false;
+    this.attackCoolDown = 0;
+    this.stateNormalName = "normal";
+    this.stateHurtName = "hurt";
+    this.stateAttackName = "attack";
+
+    this.HURT_INTERVAL = 2000;
+    this.ATTACK_INTERVAL = 1000;
+
+    this.currentState = this.stateNormalName;
 
     var imageName = "";
     switch( this.id ) {
@@ -23,7 +31,6 @@ var Player = function(game, x, y, id) {
 
     // this.filters = [this.game.grayFilter];
 
-    // this.filters = [ this.game.glowFilter ];
     // this.filters = null;
 
     this.anchor.setTo( 0.5, 0.5 );
@@ -42,46 +49,74 @@ Player.prototype.constructor = Player;
 Player.prototype.update = function() {
     if ( this.hurtCoolDown > 0 ) {
         var dt = this.game.time.now - this.lastTime;
-    // console.log( "hrut update dt : " + dt);
         this.hurtCoolDown -= dt;
         this.lastTime = this.game.time.now;
 
         if ( this.hurtCoolDown <= 0 ) {
-            this.isHurt = false;
-            this.play('walk');
+            this.changeState( this.stateNormalName );
+        }
+    } else if ( this.attackCoolDown > 0 ) {
+        var dt = this.game.time.now - this.lastTime;
+        this.attackCoolDown -= dt;
+        this.lastTime = this.game.time.now;
+
+        if ( this.attackCoolDown <= 0 ) {
+            this.changeState( this.stateNormalName );
         }
     }
 };
 Player.prototype.hurt = function() {
     // console.log( "hrut");
-    this.hurtCoolDown = 2000;
+    this.hurtCoolDown = this.HURT_INTERVAL;
+    this.attackCoolDown = 0;
     this.lastTime = this.game.time.now;
-    this.isHurt = true;
-    this.play( 'hurt' );
+    this.play( 'hurt' );    
+    this.currentState = this.stateHurtName;
+    this.filters = null;
 };
 
 Player.prototype.attack = function() {
     // console.log( "hrut");
-    this.hurtCoolDown = 2000;
+    this.hurtCoolDown = 0;
+    this.attackCoolDown = this.ATTACK_INTERVAL;
     this.lastTime = this.game.time.now;
-    this.isHurt = true;
     this.play( 'hurt' );
+    this.currentState = this.stateAttackName;
+    this.filters = [ this.game.glowFilter ];
 };
 
 Player.prototype.normal = function() {
     // console.log( "hrut");
     this.hurtCoolDown = 0;
-    this.isHurt = false;
-    this.play( 'hurt' );
+    this.attackCoolDown = 0;
+    this.lastTime = this.game.time.now;
+    this.play( 'walk' );
+    this.currentState = this.stateNormalName;
+    this.filters = null;
 };
 
 Player.prototype.changeState = function( state ) {
     switch( state ) {
-        case "hurt":
+        case this.stateHurtName:
             this.hurt();
             break;
-        case "attack":
+        case this.stateAttackName:
             this.attack();
             break;
+        case this.stateNormalName:
+            this.normal();
+            break;
     }
+}
+
+Player.prototype.checkState = function( state ) {
+    return this.currentState == state;
+}
+
+Player.prototype.isHurt = function() {
+    return this.checkState( this.stateHurtName );
+}
+
+Player.prototype.isAttacking = function() {
+    return this.checkState( this.stateAttackName );
 }

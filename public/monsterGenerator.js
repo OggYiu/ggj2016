@@ -6,7 +6,7 @@ var MonsterGenerator = function(game) {
     this.CAR_INCREASER = 0.3;
     this.TRACKER_INCREASER = 0.1;
 
-    this.coolDownTime = this.GENERATE_INTERVAL;
+    this.coolDownTime = 1000;
     this.numberOfCar = 1;
     this.numberOfTracker = 0;
 };
