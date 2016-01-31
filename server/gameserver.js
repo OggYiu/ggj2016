@@ -8,7 +8,7 @@ var ip = require("ip");
 
 var public_path = '../public';
 var filepath = path.join(__dirname, public_path, 'game.html');
-var appPort = 80;
+var appPort = 5005;
 
 var gameWorld = {
   "players":[],
@@ -60,6 +60,9 @@ io.on('connection', function(client) {
       {
         gameWorld.monsters[i].posX = monster.posX;
         gameWorld.monsters[i].posY = monster.posY;
+        gameWorld.monsters[i].alive = monster.alive;
+
+        console.log(gameWorld.monsters[i]);
       }
     }
     client.broadcast.emit('update_monster', monster);
