@@ -58,7 +58,7 @@
         // var explosions;
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
-        var isSinglePlayer = true;
+        var isSinglePlayer = false;
         var monsterGenerator;
         // var enemyDiedList = null;
 
@@ -303,6 +303,7 @@
                     }
                     if ( keyAttack.isDown ) {
                         player.changeState( player.stateAttackName );
+                        updatePlayerPosition(player);
                     }
                     if ( fireButton.isDown ) {
                         // playerFireBullet( game, getPlayerById(game.account_id), game.input.x, game.input.y);
@@ -487,6 +488,7 @@
         }
 
         var socket = null;
+        var timeout = [];
 
         function createServerMonster(monster)
         {
@@ -497,6 +499,7 @@
                 socket.emit('new_remote_monster', json);
             }
 
+            //timeout[monster.id] = setInterval(function(){ updateMonsterPosition(monster); }, 50);
             setInterval(function(){ updateMonsterPosition(monster); }, 50);
           }
         }
@@ -505,7 +508,7 @@
         {
           if (player)
           {
-            var json = {"id":game.account_id, "posX":player.x, "posY":player.y, "alive":player.alive};
+            var json = {"id":game.account_id, "posX":player.x, "posY":player.y, "state":player.stateAttackName};
             if ( socket ) {
                 socket.emit('update_player', json);
             }
@@ -516,10 +519,10 @@
         {
           if (monster)
           {
-            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
-            if ( socket ) {
-                socket.emit('update_monster', json);
-            }
+              var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
+              if ( socket ) {
+                  socket.emit('update_monster', json);
+              }
           }
         }
 
@@ -533,7 +536,7 @@
               remoteMonster.x = monster.posX;
               remoteMonster.y = monster.posY;
 
-              if (monster.alive == false)
+              if (remoteMonster.alive == true && monster.alive == false)
               {
                 killMonster(remoteMonster);
               }
@@ -545,6 +548,7 @@
             var remotePlayer = getPlayerById(player.id);
             remotePlayer.x = player.posX;
             remotePlayer.y = player.posY;
+            remotePlayer.changeState(player.state);
           }
 
           function NewPlayer(player)
