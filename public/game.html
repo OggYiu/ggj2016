@@ -453,7 +453,7 @@
         {
           if (game.account_id == 1)
           {
-            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "type":monster.entityType, "status":monster.alive};
+            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "type":monster.entityType, "alive":monster.alive};
             if ( socket ) {
                 socket.emit('new_remote_monster', json);
             }
