@@ -589,7 +589,7 @@
         {
           if (player)
           {
-            var json = {"id":game.account_id, "posX":player.x, "posY":player.y, "state":player.stateAttackName};
+            var json = {"id":game.account_id, "posX":player.x, "posY":player.y, "state":player.stateAttackName, "hp":player.hp};
             if ( socket ) {
                 socket.emit('update_player', json);
             }
@@ -630,6 +630,7 @@
             remotePlayer.x = player.posX;
             remotePlayer.y = player.posY;
             remotePlayer.changeState(player.state);
+            remotePlayer.hp = player.hp;
           }
 
           function NewPlayer(player)
