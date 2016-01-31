@@ -30,7 +30,7 @@ var Enemy_Car = function(game, targetId, type, speed) {
     Phaser.Sprite.call( this, game, targetX, targetY, 'monster_car' );
 
     this.anchor.setTo( 0.5, 0.5 );
-    this.animations.add('walk', [ 0, 1 ], 5, true);
+    this.animations.add('walk', [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27 ], 20, true);
     this.play('walk');
     this.revive();
 

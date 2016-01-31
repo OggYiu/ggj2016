@@ -32,8 +32,7 @@
             game.load.spritesheet('monster_3', 'assets/monster3.png', 48, 64);
             game.load.spritesheet('monster_4', 'assets/monster4.png', 48, 64);
             game.load.spritesheet('monster_5', 'assets/monster5.png', 48, 64);
-            // game.load.spritesheet('monster_car', 'assets/monster_car.png', 42, 42);
-            game.load.spritesheet('monster_car', 'assets/ghost_car.png', 48, 48);
+            game.load.spritesheet('monster_car', 'assets/monster_car.png', 40, 40);
             game.load.tilemap('map1CVS', 'assets/map1.csv', null, Phaser.Tilemap.CSV);
             game.load.image('map1Tiles', 'assets/mapTile1.png');
             game.load.image("boid", "assets/boid.png");
@@ -438,7 +437,10 @@
                                         new Phaser.Point(player3.x, player3.y) ) ) {
                     if ( enemy.alive ) {
                         killMonster(enemy);
+<<<<<<< HEAD
                         monsterKilled = true;
+=======
+>>>>>>> 40d220049427c7c5036ff6d10db1c62022a985d9
                     }
                 }
             });
