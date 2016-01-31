@@ -39,6 +39,10 @@
             game.load.image("boid", "assets/boid.png");
             game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
 
+            game.load.audio('killEnemy', 'assets/.mp3');
+
+            //  Firefox doesn't support mp3 files, so use ogg
+            game.load.audio('background_music', ['assets/background_music.mp3']);
         }
         var group_player;
         var group_enemy;
@@ -58,8 +62,10 @@
         // var explosions;
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
-        var isSinglePlayer = false;
+        var MAGIC_TRIANGLE_AREA_LIMIT = 35000;
+        var isSinglePlayer = true;
         var monsterGenerator;
+        var music;
         // var enemyDiedList = null;
 
         var game = new Phaser.Game(800, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
@@ -67,6 +73,7 @@
         game.myScreenHeight = 608;
         game.nextEnemyId = 1;
         game.account_id = 1;
+        game.isMagicTriangleActive = false;
 
         function create() {
             map1 = game.add.tilemap('map1CVS', 32, 32);
@@ -79,6 +86,10 @@
 
             game.glowFilter = new Phaser.Filter(game, null, glowFragmentSrc);
             game.glowFilter.setResolution(800, 600);
+
+
+            music = game.add.audio('background_music');
+            music.play();
 
             // monsterGenerator = new MonsterGenerator(game);
             // game.grayFilter = new Phaser.Filter( game, null, grayFragmentSrc );
@@ -159,6 +170,10 @@
             // group_enemy.y = 50;
 
             //  You can also create an empty Polygon:
+        }
+
+        function triangleArea( a, b, c ) {
+            return Math.abs((a.x-c.x)*(b.y-a.y)-(a.x-b.x)*(c.y-a.y))*0.5;
         }
 
         game.getNextEnemyId = function() {
@@ -346,12 +361,23 @@
             var player3 = getPlayerById(3);
 
             if ( player1 && player2 && player3 ) {
-                //  And then populate it via setTo, using any combination of values as above
-                magicTriangle.setTo([ new Phaser.Point(player1.x, player1.y), new Phaser.Point(player2.x, player2.y), new Phaser.Point(player3.x, player3.y)]);
+                var p1 = new Phaser.Point(player1.x, player1.y);
+                var p2 = new Phaser.Point(player2.x, player2.y);
+                var p3 = new Phaser.Point(player3.x, player3.y);
+
                 graphics.clear();
-                graphics.beginFill(0xFF33ff, 0.3);
-                graphics.drawPolygon(magicTriangle.points);
-                graphics.endFill();
+                var magicTriangleArea = triangleArea( p1, p2, p3 );
+                if ( magicTriangleArea <= MAGIC_TRIANGLE_AREA_LIMIT ) {
+                    game.isMagicTriangleActive = true;
+                    //  And then populate it via setTo, using any combination of values as above
+                    magicTriangle.setTo([ p1, p2, p3 ]);
+                    graphics.clear();
+                    graphics.beginFill(0xFF33ff, 0.3);
+                    graphics.drawPolygon(magicTriangle.points);
+                    graphics.endFill();
+                } else {
+                    game.isMagicTriangleActive = false;
+                }
             }
         }
 
@@ -412,6 +438,9 @@
         }
 
         function activeMagicCircle() {
+            if ( !game.isMagicTriangleActive ) {
+                return;
+            }
 
             var player1 = getPlayerById(1);
             var player2 = getPlayerById(2);
