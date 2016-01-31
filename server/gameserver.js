@@ -12,7 +12,8 @@ var appPort = 80;
 
 var gameWorld = {
   "players":[],
-  "monsters":[]
+  "monsters":[],
+  "score":0
 };
 
 app.use(express.static('../public'));
@@ -49,6 +50,11 @@ io.on('connection', function(client) {
   client.on('new_remote_monster', function(monster) {
     client.broadcast.emit('new_remote_monster', monster);
     gameWorld.monsters.push(monster);
+  });
+
+  client.on('update_score', function(score) {
+    gameWorld.score = score;
+    client.broadcast.emit('update_score', gameWorld.score);
   });
 
   client.on('update_monster', function(monster) {
