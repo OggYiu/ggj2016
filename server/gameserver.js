@@ -19,8 +19,8 @@ app.use(express.static('../public'));
 
 app.get('/', function(req, res) {
   fs.readFile(filepath, 'utf8', function(err, text) {
-    //text = text.replace("SERVERIP", ip.address() + ":" + appPort);
-    text = text.replace("SERVERIP", "localhost" + ":" + appPort);
+    text = text.replace("SERVERIP", ip.address() + ":" + appPort);
+    //text = text.replace("SERVERIP", "localhost" + ":" + appPort);
     res.send(text);
   });
 });
@@ -48,7 +48,6 @@ io.on('connection', function(client) {
   createPlayer(client);
 
   client.on('new_remote_monster', function(monster) {
-    console.log(monster);
     client.broadcast.emit('new_remote_monster', monster);
     gameWorld.monsters.push(monster);
   });
@@ -58,11 +57,16 @@ io.on('connection', function(client) {
     {
       if (gameWorld.monsters[i].id == monster.id)
       {
-        gameWorld.monsters[i].posX = monster.posX;
-        gameWorld.monsters[i].posY = monster.posY;
-        gameWorld.monsters[i].alive = monster.alive;
-
-        console.log(gameWorld.monsters[i]);
+        if (monster.alive == false)
+        {
+          gameWorld.monsters.splice(i, 1);
+        }
+        else
+        {
+          gameWorld.monsters[i].posX = monster.posX;
+          gameWorld.monsters[i].posY = monster.posY;
+          gameWorld.monsters[i].alive = monster.alive;
+        }
       }
     }
     client.broadcast.emit('update_monster', monster);

@@ -319,7 +319,7 @@
         function onEnemyPlayerOverlay( enemy, player ) {
             if ( player.alive && !player.isHurt ) {
                 player.hurt();
-                game.killMonster( enemy );
+                killMonster( enemy );
             }
             //console.log( "overlapped!, enemy : " + enemy.entityType + ", player : " + player.entityType );
         }
@@ -419,7 +419,7 @@
                                         new Phaser.Point(player2.x, player2.y),
                                         new Phaser.Point(player3.x, player3.y) ) ) {
                     if ( enemy.alive ) {
-                        game.killMonster(enemy);
+                        killMonster(enemy);
                     }
                 }
             });
@@ -490,9 +490,6 @@
           if (monster)
           {
             var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
-
-            // console.log(json);
-
             if ( socket ) {
                 socket.emit('update_monster', json);
             }
@@ -504,8 +501,16 @@
           function UpdateRemoteMonster(monster)
           {
             var remoteMonster = getMonsterById(monster.id);
-            remoteMonster.x = monster.posX;
-            remoteMonster.y = monster.posY;
+            if (remoteMonster)
+            {
+              remoteMonster.x = monster.posX;
+              remoteMonster.y = monster.posY;
+
+              if (monster.alive == false)
+              {
+                killMonster(remoteMonster);
+              }
+            }
           }
 
           function UpdateRemotePlayer(player)
