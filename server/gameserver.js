@@ -78,6 +78,7 @@ io.on('connection', function(client) {
       {
         gameWorld.players[i].posX = player.posX;
         gameWorld.players[i].posY = player.posY;
+        gameWorld.players[i].state = player.state;
       }
     }
     client.broadcast.emit('update_player', player);
