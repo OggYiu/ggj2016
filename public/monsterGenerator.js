@@ -16,6 +16,7 @@ MonsterGenerator.prototype.update = function() {
         var dt = this.game.time.now - this.lastTime;
         this.coolDownTime -= dt;
         if ( this.coolDownTime <= 0 ) {
+            this.game.nextWaveSound.play();
             this.generateMonsters();
             this.coolDownTime = this.GENERATE_INTERVAL;
 

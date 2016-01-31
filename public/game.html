@@ -41,6 +41,7 @@
 
             game.load.audio('hurt', 'assets/killEnemy.mp3');
             game.load.audio('triangleActived', 'assets/triangleActived.mp3');
+            game.load.audio('nextWave', 'assets/ghost.mp3');
 
             //  Firefox doesn't support mp3 files, so use ogg
             game.load.audio('background_music', ['assets/background_music.mp3']);
@@ -79,12 +80,16 @@
         game.account_id = 1;
         game.isMagicTriangleActive = false;
         game.score = 0;
+        game.nextWaveSound;
 
         function create() {
             sound_hurt = game.add.audio('hurt');
             sound_hurt.allowMultiple = true;
             sound_triangleActived = game.add.audio('triangleActived');
             sound_triangleActived.allowMultiple = true;
+            game.nextWaveSound = game.add.audio('nextWave');
+            game.nextWaveSound.allowMultiple = true;
+
 
             map1 = game.add.tilemap('map1CVS', 32, 32);
             map1.addTilesetImage('map1Tiles');
@@ -97,12 +102,12 @@
             game.glowFilter = new Phaser.Filter(game, null, glowFragmentSrc);
             game.glowFilter.setResolution(800, 600);
 
-            if ( game.account_id == 1 ) {
+            // if ( game.account_id == 1 ) {
                 music = game.add.audio('background_music');
                 music.volume = 0.5;
                 music.play();
                 music.loop = true;
-            }
+            // }
 
             // monsterGenerator = new MonsterGenerator(game);
             // game.grayFilter = new Phaser.Filter( game, null, grayFragmentSrc );
@@ -157,11 +162,11 @@
             // explosions.createMultiple(30, 'kaboom');
             // explosions.forEach(setupInvader, this);
 
-            keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
-            keyRight = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
-            keyUpward = game.input.keyboard.addKey(Phaser.Keyboard.UP);
-            keyDownward = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
-            keyAttack = game.input.keyboard.addKey(Phaser.Keyboard.A);
+            keyLeft = game.input.keyboard.addKey(Phaser.Keyboard.A);
+            keyRight = game.input.keyboard.addKey(Phaser.Keyboard.D);
+            keyUpward = game.input.keyboard.addKey(Phaser.Keyboard.W);
+            keyDownward = game.input.keyboard.addKey(Phaser.Keyboard.S);
+            keyAttack = game.input.keyboard.addKey(Phaser.Keyboard.Q);
             fireButton = game.input.mousePointer;
 
             if ( !isSinglePlayer ) {
