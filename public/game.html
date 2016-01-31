@@ -39,7 +39,8 @@
             game.load.image("boid", "assets/boid.png");
             game.load.spritesheet('kaboom', 'assets/explosion.png', 64, 64, 23);
 
-            game.load.audio('killEnemy', 'assets/.mp3');
+            game.load.audio('hurt', 'assets/killEnemy.mp3');
+            game.load.audio('triangleActived', 'assets/triangleActived.mp3');
 
             //  Firefox doesn't support mp3 files, so use ogg
             game.load.audio('background_music', ['assets/background_music.mp3']);
@@ -59,6 +60,8 @@
         var graphics;
         var map1;
         var magicCircleShape;
+        var sound_hurt;
+        var sound_triangleActived;
         // var explosions;
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
@@ -74,8 +77,14 @@
         game.nextEnemyId = 1;
         game.account_id = 1;
         game.isMagicTriangleActive = false;
+        game.score = 0;
 
         function create() {
+            sound_hurt = game.add.audio('hurt');
+            sound_hurt.allowMultiple = true;
+            sound_triangleActived = game.add.audio('triangleActived');
+            sound_triangleActived.allowMultiple = true;
+
             map1 = game.add.tilemap('map1CVS', 32, 32);
             map1.addTilesetImage('map1Tiles');
             layer = map1.createLayer(0);
@@ -87,8 +96,8 @@
             game.glowFilter = new Phaser.Filter(game, null, glowFragmentSrc);
             game.glowFilter.setResolution(800, 600);
 
-
             music = game.add.audio('background_music');
+            music.volume = 0.5;
             music.play();
 
             // monsterGenerator = new MonsterGenerator(game);
@@ -340,6 +349,7 @@
 
         function onEnemyPlayerOverlay( enemy, player ) {
             if ( player.alive ) {
+                sound_hurt.play();
                 player.hurt();
                 killMonster( enemy );
             }
@@ -469,6 +479,7 @@
                     if ( enemy.alive ) {
                         killMonster(enemy);
                         monsterKilled = true;
+                        ++game.score;
                     }
                 }
             });
@@ -480,6 +491,7 @@
             player1.changeState( player1.stateNormalName );
             player2.changeState( player1.stateNormalName );
             player3.changeState( player1.stateNormalName );
+            sound_triangleActived.play();
         }
 
         function killMonster( enemy ) {
@@ -509,6 +521,7 @@
             //                         new Phaser.Point(player3.x, player3.y) );
             // game.debug.geom(magicCircleShape,'#cfffff');
             game.debug.text(game.time.fps || '--', 2, 14, "#00ff00");
+            game.debug.text("score: " + game.score || '--', 300, 14, "#00ff00");
             updateMagicCircle();
             // for (var i = 0; i < aliens.length; i++)
             // {
