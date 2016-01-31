@@ -66,7 +66,7 @@
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
         var MAGIC_TRIANGLE_AREA_LIMIT = 35000;
-        var isSinglePlayer = true;
+        var isSinglePlayer = false;
         var monsterGenerator;
         var music;
         var isMagicTriangleTriggered = false;
@@ -496,6 +496,7 @@
                         killMonster(enemy);
                         monsterKilled = true;
                         ++game.score;
+                        updateServerScore(game.score);
                     }
                 }
             });
@@ -569,6 +570,13 @@
 
             //timeout[monster.id] = setInterval(function(){ updateMonsterPosition(monster); }, 50);
             setInterval(function(){ updateMonsterPosition(monster); }, 50);
+          }
+        }
+
+        function updateServerScore(score)
+        {
+          if ( socket ) {
+              socket.emit('update_score', score);
           }
         }
 
@@ -656,6 +664,11 @@
 
           socket.on('update_monster', function(monster) {
             UpdateRemoteMonster(monster);
+          });
+
+          //
+          socket.on('update_score', function(score) {
+            game.score = score;
           });
 
           socket.on('new_remote_monster', function(monster) {
