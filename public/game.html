@@ -55,7 +55,7 @@
         // var explosions;
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
-        var isSinglePlayer = true;
+        var isSinglePlayer = false;
         var monsterGenerator;
 
         var game = new Phaser.Game(800, 608, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
@@ -76,7 +76,7 @@
             game.glowFilter = new Phaser.Filter(game, null, glowFragmentSrc);
             game.glowFilter.setResolution(800, 600);
 
-            monsterGenerator = new MonsterGenerator(game);
+            // monsterGenerator = new MonsterGenerator(game);
             // game.grayFilter = new Phaser.Filter( game, null, grayFragmentSrc );
 
             // fireballFilter = new Phaser.Filter(game, null, fireballFragmentSrc);
@@ -251,7 +251,11 @@
 
         function update() {
             // console.log( "mouse pos : " + game.input.mousePointer.x + ", " + game.input.mousePointer.y);
-            monsterGenerator.update();
+
+            if (monsterGenerator)
+            {
+              monsterGenerator.update();
+            }
 
             fireBullet();
 
@@ -445,7 +449,7 @@
         {
           if (game.account_id == 1)
           {
-            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "type":monster.entityType, "status":'ALIVE'};
+            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "type":monster.entityType, "status":monster.alive};
             if ( socket ) {
                 socket.emit('new_remote_monster', json);
             }
@@ -458,7 +462,7 @@
         {
           if (player)
           {
-            var json = {"id":game.account_id, "posX":player.x, "posY":player.y, "status":'ALIVE'};
+            var json = {"id":game.account_id, "posX":player.x, "posY":player.y, "alive":player.alive};
             if ( socket ) {
                 socket.emit('update_player', json);
             }
@@ -469,7 +473,10 @@
         {
           if (monster)
           {
-            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "status":'ALIVE'};
+            var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
+
+            console.log(json);
+
             if ( socket ) {
                 socket.emit('update_monster', json);
             }
@@ -499,11 +506,7 @@
 
             if (game.account_id == 1)
             {
-              game.createEnemyTracker(game, game.getNextEnemyId(), 10, 10, game.rnd.integerInRange(1, group_player.children.length));
-              game.createEnemyCar(game, game.getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
-              game.createEnemyCar(game, game.getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
-              game.createEnemyCar(game, game.getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
-              game.createEnemyCar(game, game.getNextEnemyId(), game.rnd.integerInRange(0, 3), game.rnd.integerInRange(100, 200));
+              monsterGenerator = new MonsterGenerator(game);
             }
           }
 

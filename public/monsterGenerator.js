@@ -2,7 +2,7 @@ var MonsterGenerator = function(game) {
     this.game = game;
     this.lastTime = this.startTime = this.game.time.now
 
-    this.GENERATE_INTERVAL = 2000;
+    this.GENERATE_INTERVAL = 5000;
     this.CAR_INCREASER = 0.3;
     this.TRACKER_INCREASER = 0.1;
 
