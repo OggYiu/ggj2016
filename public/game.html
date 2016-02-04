@@ -67,7 +67,7 @@
         var FIREBALL_WIDTH = 800;
         var FIREBALL_HEIGHT = 600;
         var MAGIC_TRIANGLE_AREA_LIMIT = 35000;
-        var isSinglePlayer = false;
+        var isSinglePlayer = true;
         var monsterGenerator;
         var music;
         var isMagicTriangleTriggered = false;
@@ -120,33 +120,7 @@
             // fireballSprite.filters = [ fireballFilter ];
             // fireballSprite.anchor.setTo( 0.5, 0.5 );
 
-            group_player = game.add.group();
-            group_player.enableBody = true;
-            group_player.physicsBodyType = Phaser.Physics.ARCADE;
-
-            group_enemy = game.add.group();
-            group_enemy.enableBody = true;
-            group_enemy.physicsBodyType = Phaser.Physics.ARCADE;
-            group_enemy.setAll('outOfBoundsKill', true);
-            group_enemy.setAll('checkWorldBounds', true);
-
-            group_player_bullet = game.add.group();
-            group_player_bullet.enableBody = true;
-            group_player_bullet.physicsBodyType = Phaser.Physics.ARCADE;
-            group_player_bullet.createMultiple(30, 'bullet_1');
-            group_player_bullet.setAll('anchor.x', 0.5);
-            group_player_bullet.setAll('anchor.y', 1);
-            group_player_bullet.setAll('outOfBoundsKill', true);
-            group_player_bullet.setAll('checkWorldBounds', true);
-
-            group_enemy_bullet = game.add.group();
-            group_enemy_bullet.enableBody = true;
-            group_enemy_bullet.physicsBodyType = Phaser.Physics.ARCADE;
-            group_enemy_bullet.createMultiple(30, 'bullet_1');
-            group_enemy_bullet.setAll('anchor.x', 0.5);
-            group_enemy_bullet.setAll('anchor.y', 1);
-            group_enemy_bullet.setAll('outOfBoundsKill', true);
-            group_enemy_bullet.setAll('checkWorldBounds', true);
+            createGroups();
 
             game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -188,6 +162,45 @@
             // group_enemy.y = 50;
 
             //  You can also create an empty Polygon:
+        }
+
+        function createGroups() {
+          group_player = game.add.group();
+          group_player.enableBody = true;
+          group_player.physicsBodyType = Phaser.Physics.ARCADE;
+
+          group_enemy = game.add.group();
+          group_enemy.enableBody = true;
+          group_enemy.physicsBodyType = Phaser.Physics.ARCADE;
+          group_enemy.setAll('outOfBoundsKill', true);
+          group_enemy.setAll('checkWorldBounds', true);
+
+          group_player_bullet = game.add.group();
+          group_player_bullet.enableBody = true;
+          group_player_bullet.physicsBodyType = Phaser.Physics.ARCADE;
+          group_player_bullet.createMultiple(30, 'bullet_1');
+          group_player_bullet.setAll('anchor.x', 0.5);
+          group_player_bullet.setAll('anchor.y', 1);
+          group_player_bullet.setAll('outOfBoundsKill', true);
+          group_player_bullet.setAll('checkWorldBounds', true);
+
+          group_enemy_bullet = game.add.group();
+          group_enemy_bullet.enableBody = true;
+          group_enemy_bullet.physicsBodyType = Phaser.Physics.ARCADE;
+          group_enemy_bullet.createMultiple(30, 'bullet_1');
+          group_enemy_bullet.setAll('anchor.x', 0.5);
+          group_enemy_bullet.setAll('anchor.y', 1);
+          group_enemy_bullet.setAll('outOfBoundsKill', true);
+          group_enemy_bullet.setAll('checkWorldBounds', true);
+        }
+
+        function destroyAll() {
+          group_player.destroy();
+          group_enemy.destroy();
+          group_player_bullet.destroy();
+          group_enemy_bullet.destroy();
+
+          createGroups();
         }
 
         function triangleArea( a, b, c ) {
@@ -335,8 +348,9 @@
                         updatePlayerPosition(player);
                     }
                     if ( keyAttack.isDown ) {
-                        player.changeState( player.stateAttackName );
-                        updatePlayerPosition(player);
+                      // destroyAll();
+                      player.changeState( player.stateAttackName );
+                      updatePlayerPosition(player);
                     }
                     if ( fireButton.isDown ) {
                         // playerFireBullet( game, getPlayerById(game.account_id), game.input.x, game.input.y);
@@ -376,6 +390,8 @@
         }
 
         function updateMagicCircle() {
+            graphics.clear();
+
             if ( group_player.children.length < 3 ) {
                 return;
             }
@@ -388,7 +404,6 @@
                 var p2 = new Phaser.Point(player2.x, player2.y);
                 var p3 = new Phaser.Point(player3.x, player3.y);
 
-                graphics.clear();
                 var magicTriangleArea = triangleArea( p1, p2, p3 );
                 if ( magicTriangleArea <= MAGIC_TRIANGLE_AREA_LIMIT ) {
                     game.isMagicTriangleActive = true;
@@ -600,7 +615,7 @@
         {
           if (monster)
           {
-              console.log(monster.stopSend);
+              // console.log(monster.stopSend);
               if (monster.stopSend == false)
               {
                 if (monster.alive == false)

@@ -27,6 +27,7 @@ MonsterGenerator.prototype.update = function() {
     this.lastTime = this.game.time.now;
 };
 MonsterGenerator.prototype.generateMonsters = function() {
+  // console.log( 'generateMonsters' );
     var number_of_car = Math.round( this.numberOfCar );
     var number_of_tracker = Math.round( this.numberOfTracker );
 
