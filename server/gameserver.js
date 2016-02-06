@@ -102,6 +102,15 @@ io.on('connection', function(client) {
 
   client.on('disconnect', function() {
     console.log('Client has disconnected');
+    if (gameWorld.players.length > 0)
+    {
+      gameWorld = {
+        "players":[],
+        "monsters":[],
+        "score":0
+      };
+      io.emit('reset_server');
+    }
   });
 });
 

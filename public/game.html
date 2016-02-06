@@ -105,10 +105,12 @@
 
             // if ( game.account_id == 1 ) {
 
+                /*
                 music = game.add.audio('background_music');
                 music.volume = 0.5;
                 music.play();
                 music.loop = true;
+                */
 
             // }
 
@@ -360,7 +362,7 @@
 
                     if (keyReset.isDown)
                     {
-                      ResetServer();
+                      ResetServer(true);
                     }
 
                     if ( fireButton.isDown ) {
@@ -602,12 +604,13 @@
           }
         }
 
-        function ResetServer(notifyServer = true)
+        function ResetServer(notifyServer)
         {
           if ( socket ) {
               destroyAll();
-              if (notifyServer)
+              if (notifyServer === true)
               {
+                console.log(notifyServer);
                 socket.emit('reset_server');
               }
               socket.disconnect();
