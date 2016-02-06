@@ -32,9 +32,15 @@ var Enemy_Tracker = function(game, targetId, x, y, targetPlayer) {
 Enemy_Tracker.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy_Tracker.prototype.constructor = Enemy_Tracker;
 Enemy_Tracker.prototype.update = function() {
+
+  if (this.socket)
+  {
+    this.updateMonsterPosition(this.socket);
+  }
+
     if ( this.destroyCountDown > 0 ) {
         var dt = this.game.time.now - this.lastTime;
-        this.lastTime = this.game.time.now
+        this.lastTime = this.game.time.now;
         this.destroyCountDown -= dt;
         if ( this.destroyCountDown <= 0 ) {
             this.destroy();
@@ -81,7 +87,18 @@ Enemy_Tracker.prototype.update = function() {
     // Calculate velocity vector based on this.rotation and this.SPEED
     this.body.velocity.x = Math.cos(targetAngle) * this.SPEED;
     this.body.velocity.y = Math.sin(targetAngle) * this.SPEED;
-}
+
+
+};
+
+Enemy_Tracker.prototype.socket = null;
+Enemy_Tracker.prototype.updateMonsterPosition = function updateMonsterPosition()
+{
+    var json = {"id":this.id, "posX":this.x, "posY":this.y, "alive":this.alive};
+    if ( this.socket ) {
+        this.socket.emit('update_monster', json);
+    }
+};
 
 Enemy_Tracker.prototype.die = function() {
     this.kill();
@@ -89,4 +106,9 @@ Enemy_Tracker.prototype.die = function() {
     this.destroyCountDown = 1000;
     this.lastTime = this.game.time.now;
     // this.destroy();
+
+    if (this.socket)
+    {
+      this.updateMonsterPosition(this.socket);
+    }
 };

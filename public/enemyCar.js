@@ -77,21 +77,41 @@ var Enemy_Car = function(game, targetId, type, speed) {
 Enemy_Car.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy_Car.prototype.constructor = Enemy_Car;
 Enemy_Car.prototype.update = function() {
-    if ( this.destroyCountDown > 0 ) {
-        var dt = this.game.time.now - this.lastTime;
-        this.lastTime = this.game.time.now
-        this.destroyCountDown -= dt;
-            // console.log( "car count down: " + this.destroyCountDown );
-        if ( this.destroyCountDown <= 0 ) {
-            // console.log( "car destroy" );
-            this.destroy();
-        }
-        return;
+  if (this.socket)
+  {
+    this.updateMonsterPosition(this.socket);
+  }
+
+  if ( this.destroyCountDown > 0 ) {
+      var dt = this.game.time.now - this.lastTime;
+      this.lastTime = this.game.time.now;
+      this.destroyCountDown -= dt;
+          // console.log( "car count down: " + this.destroyCountDown );
+      if ( this.destroyCountDown <= 0 ) {
+          // console.log( "car destroy" );
+          this.destroy();
+      }
+      return;
+  }
+};
+
+Enemy_Car.prototype.socket = null;
+Enemy_Car.prototype.updateMonsterPosition = function updateMonsterPosition()
+{
+    var json = {"id":this.id, "posX":this.x, "posY":this.y, "alive":this.alive};
+    if ( this.socket ) {
+        this.socket.emit('update_monster', json);
     }
 };
+
 Enemy_Car.prototype.die = function() {
     this.kill();
     this.destroyCountDown = 1000;
     this.lastTime = this.game.time.now;
     // this.destroy();
+
+    if (this.socket)
+    {
+      this.updateMonsterPosition(this.socket);
+    }
 };

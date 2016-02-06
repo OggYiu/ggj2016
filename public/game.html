@@ -104,10 +104,12 @@
             game.glowFilter.setResolution(800, 600);
 
             // if ( game.account_id == 1 ) {
+
                 music = game.add.audio('background_music');
                 music.volume = 0.5;
                 music.play();
                 music.loop = true;
+
             // }
 
             // monsterGenerator = new MonsterGenerator(game);
@@ -220,6 +222,7 @@
         function enemyOut( enemy ) {
             // console.log( "enemy out" );
             enemy.destroy();
+            enemy.updateMonsterPosition();
         }
 
         game.createEnemyTracker = function ( game, targetId, x, y, targetPlayerId ) {
@@ -594,10 +597,8 @@
             var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "type":monster.entityType, "alive":monster.alive};
             if ( socket ) {
                 socket.emit('new_remote_monster', json);
+                monster.socket = socket;
             }
-
-            //timeout[monster.id] = setInterval(function(){ updateMonsterPosition(monster); }, 50);
-            setInterval(function(){ updateMonsterPosition(monster); }, 50);
           }
         }
 
@@ -632,25 +633,6 @@
           }
         }
 
-        function updateMonsterPosition(monster)
-        {
-          if (monster)
-          {
-              // console.log(monster.stopSend);
-              if (monster.stopSend == false)
-              {
-                if (monster.alive == false)
-                {
-                  monster.stopSend = true;
-                }
-                var json = {"id":monster.id, "posX":monster.x, "posY":monster.y, "alive":monster.alive};
-                if ( socket ) {
-                    socket.emit('update_monster', json);
-                }
-              }
-          }
-        }
-
         function connectServer()
         {
           function UpdateRemoteMonster(monster)
@@ -667,7 +649,6 @@
               if (remoteMonster.alive == true && monster.alive == false)
               {
                 killMonster(remoteMonster);
-                //remoteMonster.stopSend = true;
               }
             }
           }

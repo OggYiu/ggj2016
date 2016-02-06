@@ -1,8 +1,8 @@
 var MonsterGenerator = function(game) {
     this.game = game;
-    this.lastTime = this.startTime = this.game.time.now
+    this.lastTime = this.startTime = this.game.time.now;
 
-    this.GENERATE_INTERVAL = 5000;
+    this.GENERATE_INTERVAL = 6000;
     this.CAR_INCREASER = 0.3;
     this.TRACKER_INCREASER = 0.1;
 
@@ -12,6 +12,10 @@ var MonsterGenerator = function(game) {
 };
 MonsterGenerator.prototype.constructor = MonsterGenerator;
 MonsterGenerator.prototype.update = function() {
+  if ( this.game.account_id != 1 ) {
+      return;
+  }
+  
     if ( this.coolDownTime > 0 ) {
         var dt = this.game.time.now - this.lastTime;
         this.coolDownTime -= dt;
