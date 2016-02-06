@@ -8,7 +8,7 @@ var ip = require("ip");
 
 var public_path = '../public';
 var filepath = path.join(__dirname, public_path, 'game.html');
-var appPort = 80;
+var appPort = 8080;
 
 var gameWorld = {
   "players":[],
@@ -30,16 +30,16 @@ function createPlayer(client)
 {
   var player = {"id":gameWorld.players.length + 1, "posX":400, "posY":500, "status":'ALIVE'};
   client.emit('new_player', player);
-  for (var i = 0; i < gameWorld.players.length; ++i)
+  for (var i1 = 0; i1 < gameWorld.players.length; ++i1)
   {
-    client.emit('new_remote_player', gameWorld.players[i]);
+    client.emit('new_remote_player', gameWorld.players[i1]);
   }
   client.broadcast.emit('new_remote_player', player);
   gameWorld.players.push(player);
 
-  for (var i = 0; i < gameWorld.monsters.length; ++i)
+  for (var i2 = 0; i2 < gameWorld.monsters.length; ++i2)
   {
-    client.emit('new_remote_monster', gameWorld.monsters[i]);
+    client.emit('new_remote_monster', gameWorld.monsters[i2]);
   }
 }
 
@@ -62,7 +62,7 @@ io.on('connection', function(client) {
     {
       if (gameWorld.monsters[i].id == monster.id)
       {
-        if (monster.alive == false)
+        if (monster.alive === false)
         {
           gameWorld.monsters.splice(i, 1);
         }
@@ -89,6 +89,15 @@ io.on('connection', function(client) {
       }
     }
     client.broadcast.emit('update_player', player);
+  });
+
+  client.on('reset_server', function() {
+    gameWorld = {
+      "players":[],
+      "monsters":[],
+      "score":0
+    };
+    client.broadcast.emit('reset_server');
   });
 
   client.on('disconnect', function() {
