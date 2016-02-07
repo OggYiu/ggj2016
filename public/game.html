@@ -696,6 +696,12 @@
             NewRemotePlayer(player);
           });
 
+          socket.on('remove_remote_player', function(player) {
+            console.log(player.id);
+            var remotePlayer = getPlayerById(player.id);
+            remotePlayer.destroy();
+          });
+
           socket.on('update_player', function(player) {
             UpdateRemotePlayer(player);
           });
